@@ -99,6 +99,11 @@ Form a foglio dal basso (importo in primo piano, `inputmode="decimal"`, data di 
 
 `npm run build` / `lint` / `test`; test delle rules con `@firebase/rules-unit-testing` sull'emulatore; script `scripts/seed-emulator.ts` con dati di esempio; confronto dei totali con l'app attuale; screenshot con Playwright a 375/390/430 per controllare lo scroll orizzontale e le sovrapposizioni con tab bar e notch; Lighthouse mobile; checklist per i test manuali su iPhone.
 
+> Esito Fasi 6–7 (16/11/2026): service worker unico (`firebase-messaging-sw.js`) con precache offline e notifiche,
+> manifest generato, icone e schermate di avvio iOS, avviso "Nuova versione", bundle iniziale ≈ 310 kB compressi.
+> Verifica completa in [`VERIFICA.md`](VERIFICA.md): 837 test unitari, 6 test delle rules, 24 test end-to-end,
+> Lighthouse mobile Accessibility 100 e Performance 95–99. Resta da provare sull'iPhone la notifica di prova.
+
 ## Rischi
 
 - Il **cambio di origine** (domanda 1) azzera installazione, permesso notifiche e token sull'iPhone.

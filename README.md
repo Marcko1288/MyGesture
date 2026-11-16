@@ -1,9 +1,12 @@
 # My Gesture
 
-PWA per la gestione delle finanze personali (saldo, spese, estratto conto, abbonamenti), pensata per iPhone.
-React 19 + Vite + TypeScript, Firebase (Auth, Firestore, Cloud Messaging, Functions, Hosting).
+PWA per la gestione delle finanze personali (saldo, spese, estratto conto, abbonamenti), pensata per iPhone
+("Aggiungi a Home"). React 19 + Vite + TypeScript + Tailwind CSS v4, Firebase (Auth, Firestore, Cloud Messaging,
+Functions, Hosting).
 
-Documentazione di progetto: [`docs/ANALISI.md`](docs/ANALISI.md), [`docs/PIANO.md`](docs/PIANO.md), [`docs/FASE0-NOTIFICHE.md`](docs/FASE0-NOTIFICHE.md).
+Documentazione di progetto: [`docs/ANALISI.md`](docs/ANALISI.md) (stato iniziale), [`docs/PIANO.md`](docs/PIANO.md)
+(fasi, decisioni, differenze volute), [`docs/FASE0-NOTIFICHE.md`](docs/FASE0-NOTIFICHE.md),
+[`docs/VERIFICA.md`](docs/VERIFICA.md) (criteri di accettazione e checklist per l'iPhone).
 
 ## Setup locale
 
@@ -23,20 +26,24 @@ npm run dev                  # http://localhost:5173
 | `VITE_FIREBASE_VAPID_KEY` | Console Firebase › Cloud Messaging › Certificati Web push (chiave pubblica) |
 | `VITE_USE_EMULATORS` | `true` per usare gli emulatori locali |
 
-I valori della web app Firebase sono pubblici per natura (finiscono nel bundle), ma non sono più scritti nel codice: la build fallisce se mancano. Il service worker delle notifiche (`/firebase-messaging-sw.js`) viene generato al build dalle stesse variabili (`vite-plugins/firebaseMessagingSw.ts`).
+I valori della web app Firebase sono pubblici per natura (finiscono nel bundle), ma non sono scritti nel codice: la
+build si ferma se mancano. `.env.emulator` contiene valori fittizi per il progetto `demo-mygesture` degli emulatori.
 
 ## Script
 
 | Comando | Cosa fa |
 |---|---|
 | `npm run dev` | Server di sviluppo |
-| `npm run build` | Typecheck + build di produzione in `dist/` |
+| `npm run dev:emulator` | Server di sviluppo collegato agli emulatori |
+| `npm run build` | Typecheck (app + service worker) e build di produzione in `dist/` |
 | `npm run preview` | Serve la build |
 | `npm run lint` | oxlint |
 | `npm run format` / `format:check` | Prettier |
-| `npm test` | Test unitari (Vitest, fuso `Europe/Rome`) |
+| `npm test` | Test unitari del dominio (Vitest, fuso `Europe/Rome`) |
 | `npm run test:rules` | Test delle security rules sull'emulatore Firestore |
+| `npm run test:e2e` | Test end-to-end Playwright (emulatori + dati di esempio + build) |
 | `npm run emulators` | Emulatori Auth, Firestore, Functions, Hosting (UI su http://127.0.0.1:4000) |
+| `npm run assets:pwa` | Rigenera apple-touch-icon, icone maskable e schermate di avvio iOS da `public/icons/icon-512.png` |
 
 ## Emulatori Firebase
 
@@ -48,25 +55,28 @@ In un altro terminale:
 
 ```bash
 node scripts/seed-emulator.mjs   # utente demo@mygesture.test / password123 + dati di esempio
-VITE_USE_EMULATORS=true VITE_FIREBASE_PROJECT_ID=demo-mygesture npm run dev
+npm run dev:emulator
 ```
 
 ## Struttura
 
 ```
 src/
-  app/        shell, router (URL di ogni schermata), tema
-  data/       accesso a Firestore: hook (useCash, useBuys, useBankRecords…), scritture, auth, push
-  domain/     tipi del modello dati e logica di business pura (testata)
-  features/   schermate per area (home, expenses, statement, savings, subscriptions, settings, auth)
+  app/        shell (tab bar, fogli), router con un URL per ogni schermata, tema, aggiornamento PWA
+  data/       accesso a Firestore: hook (useCash, useBuys, useBankRecords…), scritture, auth, push, regole
+  domain/     tipi del modello dati e logica di business pura, con test (e il codice storico per i confronti)
+  features/   schermate per area (home, expenses, statement, savings, subscriptions, settings, forms, auth)
   lib/        inizializzazione Firebase e variabili d'ambiente
-  ui/         componenti del design system
+  ui/         design system (Card, ListRow, Amount, BottomSheet, TabBar, grafici…)
+  firebase-messaging-sw.ts  service worker unico: cache offline + notifiche
 functions/    Cloud Functions (notifiche scadenze abbonamenti, notifica di prova)
-tests/        test delle security rules
-scripts/      script di supporto (seed degli emulatori, eventuali migrazioni)
+tests/        test delle security rules e test end-to-end
+scripts/      dati di esempio e seed degli emulatori, generazione asset PWA
 ```
 
-Dati: `NewMyDB/{uid}/{Bank|Buy|Cash|Group|Partner|Subscription|PushToken}`. Nomi dei campi e formato degli uid non vanno cambiati (vedi `src/domain/types.ts`).
+Dati: `NewMyDB/{uid}/{Bank|Buy|Cash|Group|Partner|Subscription|PushToken|Settings}`. Nomi dei campi e formato degli
+uid non vanno cambiati (vedi `src/domain/types.ts`). `Settings/categoryRules` contiene le regole di categorizzazione
+personalizzate (se assente valgono quelle storiche).
 
 ## Deploy
 
@@ -74,9 +84,11 @@ Il progetto di default è `mygestion-446b9` (`.firebaserc`).
 
 ```bash
 npm run build
-firebase deploy --only hosting
 firebase deploy --only firestore:rules,firestore:indexes
 cd functions && npm ci && cd .. && firebase deploy --only functions
+firebase deploy --only hosting
 ```
 
-L'hosting serve `dist/` con rewrite di tutte le route su `index.html`. `index.html` e il service worker non vengono messi in cache, gli asset con hash sono `immutable`.
+L'hosting serve `dist/` con rewrite di tutte le route su `index.html`. `index.html`, il manifest e il service worker
+non vengono messi in cache dal browser; gli asset con hash sono `immutable`. Dopo il passaggio da Netlify, sull'iPhone
+l'app va reinstallata dal nuovo indirizzo (vedi `docs/VERIFICA.md`).
