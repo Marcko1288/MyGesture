@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { FiClock, FiPlus } from 'react-icons/fi'
-import { paths, useBack } from '../../app/navigation'
+import { paths, useBack, useSheet } from '../../app/navigation'
 import { useCash } from '../../data/hooks'
 import { balanceSummary, periodBalances, periodDeltas, type BalancePeriod } from '../../domain/cash'
 import { formatDate } from '../../domain/format'
@@ -25,7 +25,7 @@ const LIMITS: Record<BalancePeriod, number> = { monthly: 6, yearly: 4 }
 
 /** "Quanto ho messo da parte nel tempo?" Saldo di fine periodo e variazioni. */
 export default function SavingsOverview() {
-  const navigate = useNavigate()
+  const sheet = useSheet()
   const back = useBack(paths.more)
   const [params, setParams] = useSearchParams()
   const period: BalancePeriod = params.get('periodo') === 'anno' ? 'yearly' : 'monthly'
@@ -44,7 +44,7 @@ export default function SavingsOverview() {
       title="Risparmi"
       subtitle="Saldo del conto nel tempo"
       back={{ label: 'Altro', onClick: back }}
-      actions={<IconButton label="Nuovo saldo" icon={<FiPlus />} onClick={() => navigate(paths.newCash)} />}
+      actions={<IconButton label="Nuovo saldo" icon={<FiPlus />} onClick={() => sheet.open('saldo')} />}
     >
       <DataState
         status={cash.status}
@@ -60,7 +60,7 @@ export default function SavingsOverview() {
           <EmptyState
             title="Nessun saldo registrato"
             message="Registra il saldo periodicamente per vedere come crescono i risparmi."
-            action={<Button onClick={() => navigate(paths.newCash)}>Aggiungi saldo</Button>}
+            action={<Button onClick={() => sheet.open('saldo')}>Aggiungi saldo</Button>}
           />
         }
       >

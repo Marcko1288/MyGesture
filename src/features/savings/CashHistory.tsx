@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { FiDownload, FiEdit2, FiTrash2 } from 'react-icons/fi'
-import { paths, useBack } from '../../app/navigation'
+import { paths, useBack, useSheet } from '../../app/navigation'
 import { useCash } from '../../data/hooks'
 import { useUndoableDelete, useWithoutPendingDeletes } from '../../data/pendingDeletes'
 import { balanceHistory } from '../../domain/cash'
@@ -13,7 +12,7 @@ import { Amount, Button, DataState, EmptyState, IconButton, List, ListRow, Page,
 
 /** Tutti i saldi registrati, dal più recente. */
 export default function CashHistory() {
-  const navigate = useNavigate()
+  const sheet = useSheet()
   const back = useBack(paths.savings)
   const cash = useCash()
   const remove = useUndoableDelete()
@@ -41,7 +40,7 @@ export default function CashHistory() {
         empty={
           <EmptyState
             title="Nessun saldo registrato"
-            action={<Button onClick={() => navigate(paths.newCash)}>Aggiungi saldo</Button>}
+            action={<Button onClick={() => sheet.open('saldo')}>Aggiungi saldo</Button>}
           />
         }
       >
@@ -49,11 +48,11 @@ export default function CashHistory() {
           {rows.map(({ cash: record, date, total }) => (
             <ListRow
               key={idOf(record)}
-              to={paths.cash(idOf(record))}
+              onClick={() => sheet.open('saldo', idOf(record))}
               title={formatDate(date) ?? 'Data non disponibile'}
               trailing={<Amount value={total} size="sm" />}
               actions={[
-                { label: 'Modifica', icon: <FiEdit2 />, onAction: () => navigate(paths.cash(idOf(record))) },
+                { label: 'Modifica', icon: <FiEdit2 />, onAction: () => sheet.open('saldo', idOf(record)) },
                 {
                   label: 'Elimina',
                   icon: <FiTrash2 />,

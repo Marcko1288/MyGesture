@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiArrowDownLeft, FiArrowUpRight } from 'react-icons/fi'
-import { paths } from '../../app/navigation'
+import { paths, useSheet } from '../../app/navigation'
 import { useBankRecords, useBuys, useCash, useGroups, useSubscriptions } from '../../data/hooks'
 import { categoryOf, dashboardMonth, recentMovements } from '../../domain/bank'
 import { monthlyExpenses, yearlyExpenses } from '../../domain/buys'
@@ -30,7 +30,7 @@ import { subscriptionIcon } from '../shared/icons'
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
 function BalanceCard() {
-  const navigate = useNavigate()
+  const sheet = useSheet()
   const cash = useCash()
   const summary = useMemo(() => balanceSummary(cash.data), [cash.data])
   const previousDate = summary.previous ? cashDate(summary.previous) : null
@@ -44,7 +44,7 @@ function BalanceCard() {
         <EmptyState
           title="Nessun saldo registrato"
           message="Registra il saldo del conto per vedere qui quanto hai."
-          action={<Button onClick={() => navigate(paths.newCash)}>Aggiungi saldo</Button>}
+          action={<Button onClick={() => sheet.open('saldo')}>Aggiungi saldo</Button>}
         />
       }
     >
@@ -163,6 +163,7 @@ function YearCard() {
 }
 
 function ExpiringSection() {
+  const sheet = useSheet()
   const subscriptions = useSubscriptions()
   const expiring = useMemo(() => expiringSubscriptions(subscriptions.data), [subscriptions.data])
   return (
@@ -196,7 +197,7 @@ function ExpiringSection() {
             return (
               <ListRow
                 key={idOf(subscription)}
-                to={paths.subscription(idOf(subscription))}
+                onClick={() => sheet.open('abbonamento', idOf(subscription))}
                 icon={<Icon />}
                 iconClassName={daysLeft <= 7 ? 'bg-warning/15 text-warning' : undefined}
                 title={subscription.name || 'Abbonamento senza nome'}

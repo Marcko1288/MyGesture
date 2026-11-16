@@ -59,11 +59,10 @@ function useSystemMode(): ResolvedMode {
 export function applyTheme(mode: ResolvedMode, theme: ThemeMode, accent: string) {
   const root = document.documentElement
   root.dataset.mode = mode
-  root.dataset.theme = theme // usato dagli stili storici (App.css)
+  root.dataset.theme = theme
   // Il testo colorato deve restare leggibile sia sulle card sia sullo sfondo.
   const { soft, strong, on } = accentVariants(accent, SURFACES[mode], BACKGROUNDS[mode], SOFT_AMOUNT[mode])
   root.style.setProperty('--accent', accent)
-  root.style.setProperty('--accent-color', accent)
   root.style.setProperty('--accent-soft', soft)
   root.style.setProperty('--accent-strong', strong)
   root.style.setProperty('--on-accent', on)

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FiList, FiPlus } from 'react-icons/fi'
-import { paths } from '../../app/navigation'
+import { paths, useSheet } from '../../app/navigation'
 import { useBuys, useGroups } from '../../data/hooks'
 import { expensesByGroup } from '../../domain/buys'
 import type { Group } from '../../domain/types'
@@ -33,6 +33,7 @@ export function groupColors(groups: Group[]): Map<string, string> {
 /** "Quanto ho speso quest'anno, e dove?" */
 export default function ExpensesOverview() {
   const navigate = useNavigate()
+  const sheet = useSheet()
   const buys = useBuys()
   const groups = useGroups()
   const year = new Date().getFullYear()
@@ -53,7 +54,7 @@ export default function ExpensesOverview() {
       actions={
         <>
           <IconButton label="Tutti i gruppi" icon={<FiList />} onClick={() => navigate(paths.groups)} />
-          <IconButton label="Nuova spesa" icon={<FiPlus />} onClick={() => navigate(paths.newBuy)} />
+          <IconButton label="Nuova spesa" icon={<FiPlus />} onClick={() => sheet.open('spesa')} />
         </>
       }
     >
@@ -72,13 +73,13 @@ export default function ExpensesOverview() {
             <EmptyState
               title="Nessun gruppo di spese"
               message="Crea un gruppo (es. Casa, Auto) e aggiungi le tue spese."
-              action={<Button onClick={() => navigate(paths.newGroup)}>Crea un gruppo</Button>}
+              action={<Button onClick={() => sheet.open('gruppo')}>Crea un gruppo</Button>}
             />
           ) : (
             <EmptyState
               title={`Nessuna spesa nel ${year}`}
               message="Le spese dei gruppi inclusi nei totali compariranno qui."
-              action={<Button onClick={() => navigate(paths.newBuy)}>Aggiungi spesa</Button>}
+              action={<Button onClick={() => sheet.open('spesa')}>Aggiungi spesa</Button>}
             />
           )
         }

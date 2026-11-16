@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { FiPlus, FiRefreshCw, FiTrash2 } from 'react-icons/fi'
-import { paths, useBack } from '../../app/navigation'
+import { paths, useBack, useSheet } from '../../app/navigation'
 import { useSubscriptions } from '../../data/hooks'
 import { useUndoableDelete, useWithoutPendingDeletes } from '../../data/pendingDeletes'
 import { idOf } from '../../domain/numbers'
@@ -41,7 +41,7 @@ function describe(subscription: Subscription, all: Subscription[]) {
 
 /** "Cosa scade?" Abbonamenti per stato, con rinnovo ed eliminazione via swipe. */
 export default function SubscriptionsList() {
-  const navigate = useNavigate()
+  const sheet = useSheet()
   const back = useBack(paths.more)
   const [params, setParams] = useSearchParams()
   const filter = filters.find((item) => item.value === params.get('filtro'))?.value ?? 'active'
@@ -54,9 +54,7 @@ export default function SubscriptionsList() {
     <Page
       title="Abbonamenti"
       back={{ label: 'Altro', onClick: back }}
-      actions={
-        <IconButton label="Nuovo abbonamento" icon={<FiPlus />} onClick={() => navigate(paths.newSubscription)} />
-      }
+      actions={<IconButton label="Nuovo abbonamento" icon={<FiPlus />} onClick={() => sheet.open('abbonamento')} />}
     >
       <SegmentedControl
         label="Stato degli abbonamenti"
@@ -74,7 +72,7 @@ export default function SubscriptionsList() {
             title={filters.find((item) => item.value === filter)!.empty}
             action={
               filter === 'active' || filter === 'all' ? (
-                <Button onClick={() => navigate(paths.newSubscription)}>Aggiungi abbonamento</Button>
+                <Button onClick={() => sheet.open('abbonamento')}>Aggiungi abbonamento</Button>
               ) : undefined
             }
           />
@@ -89,7 +87,7 @@ export default function SubscriptionsList() {
             return (
               <ListRow
                 key={idOf(subscription)}
-                to={paths.subscription(idOf(subscription))}
+                onClick={() => sheet.open('abbonamento', idOf(subscription))}
                 icon={<Icon />}
                 iconClassName={warn ? 'bg-warning/15 text-warning' : undefined}
                 title={subscription.name || 'Abbonamento senza nome'}
@@ -100,7 +98,7 @@ export default function SubscriptionsList() {
                   {
                     label: 'Rinnova',
                     icon: <FiRefreshCw />,
-                    onAction: () => navigate(paths.renewSubscription(idOf(subscription))),
+                    onAction: () => sheet.open('rinnovo', idOf(subscription)),
                   },
                   {
                     label: 'Elimina',

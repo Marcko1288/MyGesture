@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { FiPlus } from 'react-icons/fi'
-import { paths, useBack } from '../../app/navigation'
+import { paths, useBack, useSheet } from '../../app/navigation'
 import { useUserId } from '../../data/auth'
 import { useBuys, useGroups } from '../../data/hooks'
 import { commitInBatches, createOperation } from '../../data/mutations'
@@ -31,7 +30,7 @@ export function inclusionLabel(group: Group) {
 
 /** Tutti i gruppi con il totale dell'anno, e il pareggio di fine anno. */
 export default function GroupsList() {
-  const navigate = useNavigate()
+  const sheet = useSheet()
   const back = useBack(paths.expenses)
   const userId = useUserId()
   const toast = useToast()
@@ -73,7 +72,7 @@ export default function GroupsList() {
       title="Gruppi"
       subtitle="Totali dal 1° gennaio a oggi"
       back={{ label: 'Spese', onClick: back }}
-      actions={<IconButton label="Nuovo gruppo" icon={<FiPlus />} onClick={() => navigate(paths.newGroup)} />}
+      actions={<IconButton label="Nuovo gruppo" icon={<FiPlus />} onClick={() => sheet.open('gruppo')} />}
     >
       <DataState
         status={status}
@@ -83,7 +82,7 @@ export default function GroupsList() {
         empty={
           <EmptyState
             title="Nessun gruppo"
-            action={<Button onClick={() => navigate(paths.newGroup)}>Crea un gruppo</Button>}
+            action={<Button onClick={() => sheet.open('gruppo')}>Crea un gruppo</Button>}
           />
         }
       >

@@ -1,22 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router-dom'
 import { FiBell, FiDollarSign, FiLayers, FiShoppingBag, FiUpload } from 'react-icons/fi'
 import { useAuth } from '../data/auth'
 import { syncPushToken } from '../data/push'
 import { BottomSheet, List, ListRow, OfflineBanner, TabBar } from '../ui'
-import { paths } from './navigation'
+import FormSheetHost from '../features/forms/FormSheetHost'
+import { paths, useSheet, type SheetKind } from './navigation'
 
-const quickActions = [
-  { label: 'Spesa', description: 'Aggiungi una spesa a un gruppo', icon: <FiShoppingBag />, to: paths.newBuy },
-  { label: 'Saldo', description: 'Aggiorna il saldo del conto', icon: <FiDollarSign />, to: paths.newCash },
-  { label: 'Abbonamento', description: 'Nuovo abbonamento o servizio', icon: <FiBell />, to: paths.newSubscription },
+const quickActions: { label: string; description: string; icon: ReactNode; sheet?: SheetKind; to?: string }[] = [
+  { label: 'Spesa', description: 'Aggiungi una spesa a un gruppo', icon: <FiShoppingBag />, sheet: 'spesa' },
+  { label: 'Saldo', description: 'Aggiorna il saldo del conto', icon: <FiDollarSign />, sheet: 'saldo' },
+  { label: 'Abbonamento', description: 'Nuovo abbonamento o servizio', icon: <FiBell />, sheet: 'abbonamento' },
   {
     label: 'Importa estratto conto',
     description: 'File XLSX della banca',
     icon: <FiUpload />,
     to: paths.statementImport,
   },
-  { label: 'Gruppo', description: 'Nuovo gruppo di spese', icon: <FiLayers />, to: paths.newGroup },
+  { label: 'Gruppo', description: 'Nuovo gruppo di spese', icon: <FiLayers />, sheet: 'gruppo' },
 ]
 
 /** Shell dell'app: contenuto della schermata, banner offline e tab bar con l'azione rapida "Aggiungi". */
@@ -25,6 +26,7 @@ export default function AppLayout() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [addOpen, setAddOpen] = useState(false)
+  const sheet = useSheet()
   const userId = user?.uid
 
   useEffect(() => setAddOpen(false), [pathname])
@@ -59,19 +61,21 @@ export default function AppLayout() {
         <List label="Cosa vuoi aggiungere">
           {quickActions.map((action) => (
             <ListRow
-              key={action.to}
+              key={action.label}
               icon={action.icon}
               title={action.label}
               subtitle={action.description}
               onClick={() => {
                 setAddOpen(false)
-                navigate(action.to)
+                if (action.sheet) sheet.open(action.sheet)
+                else navigate(action.to!)
               }}
               chevron
             />
           ))}
         </List>
       </BottomSheet>
+      <FormSheetHost />
       <ScrollRestoration />
     </div>
   )

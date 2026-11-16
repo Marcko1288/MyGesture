@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { FiEdit2, FiPlus, FiRepeat, FiTrash2 } from 'react-icons/fi'
-import { paths, useBack } from '../../app/navigation'
+import { paths, useBack, useSheet } from '../../app/navigation'
 import { useBuys, useGroups } from '../../data/hooks'
 import { useUndoableDelete, useWithoutPendingDeletes } from '../../data/pendingDeletes'
 import { buysOfGroup, buysToDelete, type BuyFilter } from '../../domain/buys'
@@ -37,6 +37,7 @@ const filters: { value: BuyFilter; label: string; empty: string }[] = [
 export default function GroupDetail() {
   const { groupId = '' } = useParams()
   const navigate = useNavigate()
+  const sheet = useSheet()
   const back = useBack(paths.expenses)
   const [params, setParams] = useSearchParams()
   const filter = (filters.find((item) => item.value === params.get('periodo'))?.value ?? 'current') as BuyFilter
@@ -79,11 +80,11 @@ export default function GroupDetail() {
       back={{ label: 'Spese', onClick: back }}
       actions={
         <>
-          <IconButton label="Modifica gruppo" icon={<FiEdit2 />} onClick={() => navigate(paths.editGroup(groupId))} />
+          <IconButton label="Modifica gruppo" icon={<FiEdit2 />} onClick={() => sheet.open('gruppo', groupId)} />
           <IconButton
             label="Nuova spesa"
             icon={<FiPlus />}
-            onClick={() => navigate(`${paths.newBuy}?gruppo=${encodeURIComponent(groupId)}`)}
+            onClick={() => sheet.open('spesa', undefined, { gruppo: groupId })}
           />
         </>
       }
@@ -107,11 +108,7 @@ export default function GroupDetail() {
         empty={
           <EmptyState
             title={emptyText}
-            action={
-              <Button onClick={() => navigate(`${paths.newBuy}?gruppo=${encodeURIComponent(groupId)}`)}>
-                Aggiungi spesa
-              </Button>
-            }
+            action={<Button onClick={() => sheet.open('spesa', undefined, { gruppo: groupId })}>Aggiungi spesa</Button>}
           />
         }
       >
@@ -128,7 +125,7 @@ export default function GroupDetail() {
             return (
               <ListRow
                 key={idOf(buy)}
-                to={paths.buy(idOf(buy))}
+                onClick={() => sheet.open('spesa', idOf(buy))}
                 icon={<Icon />}
                 title={buy.name || 'Spesa senza nome'}
                 subtitle={
@@ -146,7 +143,7 @@ export default function GroupDetail() {
                 trailing={<Amount value={Number(buy.amount) || 0} size="sm" />}
                 chevron={false}
                 actions={[
-                  { label: 'Modifica', icon: <FiEdit2 />, onAction: () => navigate(paths.buy(idOf(buy))) },
+                  { label: 'Modifica', icon: <FiEdit2 />, onAction: () => sheet.open('spesa', idOf(buy)) },
                   { label: 'Elimina', icon: <FiTrash2 />, tone: 'destructive', onAction: () => askDelete(buy) },
                 ]}
               />
