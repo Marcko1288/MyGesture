@@ -34,6 +34,7 @@ export const paths = {
   subscription: (id: string) => `/altro/abbonamenti/${encodeURIComponent(id)}`,
   renewSubscription: (id: string) => `/altro/abbonamenti/${encodeURIComponent(id)}/rinnovo`,
   settings: '/altro/impostazioni',
+  catalog: '/altro/componenti',
   newBuy: '/nuovo/spesa',
   newCash: '/nuovo/saldo',
   newSubscription: '/nuovo/abbonamento',

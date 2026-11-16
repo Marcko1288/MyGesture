@@ -6,6 +6,7 @@ import './App.css'
 import { AuthProvider } from './data/auth'
 import { ThemeProvider } from './app/theme'
 import { routes } from './app/routes'
+import { ToastProvider } from './ui'
 
 const router = createBrowserRouter(routes)
 
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </AuthProvider>
     </ThemeProvider>
   </StrictMode>,

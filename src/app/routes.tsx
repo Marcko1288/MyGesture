@@ -1,19 +1,14 @@
 import { useState, type ComponentType, type ReactNode } from 'react'
-import {
-  Link,
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-  useSearchParams,
-  type RouteObject,
-} from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams, type RouteObject } from 'react-router-dom'
 import { useAuth, useUserId } from '../data/auth'
 import { useBankRecords, useBuys, useCash, useGroups, useSubscriptions } from '../data/hooks'
 import type { LoadStatus } from '../data/collectionStore'
 import { renewalOf } from '../domain/subscriptions'
 import type { Subscription } from '../domain/types'
 import AppLayout from './AppLayout'
+import { Button, EmptyState, ErrorState, LoadingLabel, Skeleton, SkeletonCard } from '../ui'
+import MoreView from '../features/more/MoreView'
+import CatalogView from '../features/catalog/CatalogView'
 import { paths, useBack } from './navigation'
 import { useTheme } from './theme'
 import LoginViewJsx from '../features/auth/LoginView.jsx'
@@ -40,7 +35,17 @@ import SettingsViewJsx from '../features/settings/SettingsView.jsx'
  * (es. `buyRecords = []` → never[]). Vengono riscritte in .tsx nella Fase 4.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const legacy = (component: unknown) => component as ComponentType<any>
+const legacy = (component: unknown) => {
+  const Legacy = component as ComponentType<any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return function LegacyFrame(props: any) {
+    return (
+      <div className="home-content legacy-content">
+        <Legacy {...props} />
+      </div>
+    )
+  }
+}
 const LoginView = legacy(LoginViewJsx)
 const HomeView = legacy(HomeViewJsx)
 const SavingsView = legacy(SavingsViewJsx)
@@ -76,24 +81,28 @@ function useStable<T>(value: T | undefined): T | undefined {
 }
 
 function Loading() {
-  return <main className="loading-page">Caricamento...</main>
+  return (
+    <div className="grid min-h-dvh place-items-center bg-bg px-6">
+      <LoadingLabel>Avvio di My Gesture…</LoadingLabel>
+      <div aria-hidden="true" className="flex flex-col items-center gap-3">
+        <div className="size-16 rounded-2xl bg-accent motion-safe:animate-pulse" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+    </div>
+  )
 }
 
-/** Stato provvisorio per i record non trovati (gli stati definitivi arrivano nella Fase 3). */
-function RecordState({ status, back, children }: { status: LoadStatus; back: string; children?: ReactNode }) {
-  if (status === 'loading') return <p className="empty-chart">Caricamento...</p>
+/** Stato di una schermata di dettaglio: caricamento, errore o elemento non trovato. */
+function RecordState({ status, back, onRetry }: { status: LoadStatus; back: string; onRetry?: () => void }) {
+  const navigate = useNavigate()
+  if (status === 'loading') return <SkeletonCard lines={3} />
+  if (status === 'error') return <ErrorState onRetry={onRetry} />
   return (
-    <section className="chart-card">
-      <p className="empty-chart">
-        {status === 'error'
-          ? 'Impossibile recuperare i dati.'
-          : 'Elemento non trovato: potrebbe essere stato eliminato.'}
-      </p>
-      {children}
-      <p>
-        <Link to={back}>Torna indietro</Link>
-      </p>
-    </section>
+    <EmptyState
+      title="Elemento non trovato"
+      message="Potrebbe essere stato eliminato, anche da un altro dispositivo."
+      action={<Button onClick={() => navigate(back, { replace: true })}>Torna indietro</Button>}
+    />
   )
 }
 
@@ -436,7 +445,8 @@ export const routes: RouteObject[] = [
       { path: 'conto/categoria/:category', element: <StatementCategoryRoute /> },
       { path: 'conto/categoria/:category/andamento', element: <StatementTrendRoute /> },
       { path: 'conto/movimento/:recordId', element: <StatementRecordRoute /> },
-      { path: 'altro', element: <Navigate to={paths.savings} replace /> },
+      { path: 'altro', element: <MoreView /> },
+      { path: 'altro/componenti', element: <CatalogView /> },
       { path: 'altro/risparmi', element: <SavingsRoute /> },
       { path: 'altro/risparmi/storico', element: <CashHistoryRoute /> },
       { path: 'altro/saldo/:cashId', element: <CashDetailRoute /> },
