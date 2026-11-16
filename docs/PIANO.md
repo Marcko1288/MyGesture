@@ -2,14 +2,17 @@
 
 Branch: `fix-push` (Fase 0, da `main`) e `redesign` (Fasi 1–7). Faccio un commit per ogni passo logico e mi fermo alla fine di ogni fase con un riepilogo e l'elenco di cosa provare. Non faccio nessun deploy in produzione.
 
-## Domande aperte (mi servono le risposte prima della Fase 1)
+## Decisioni (risposte del 16/11/2026)
 
-1. **Dove gira oggi l'app?** `_redirects` fa pensare a Netlify. Se passiamo a Firebase Hosting (`mygestion-446b9.web.app`) cambia l'**origine**: su iPhone andrà rimossa l'icona dalla Home, aggiunta di nuovo dal nuovo indirizzo e riattivate le notifiche (token, localStorage e cache sono legati all'origine). Va bene così, oppure c'è un dominio personalizzato da spostare?
-2. **Abbonamenti "in scadenza"**: oggi la Home conta anche quelli già rinnovati, mentre la function li esclude. Il prompt chiede di escluderli: confermi? Ne segue che il numero in Home potrà essere **più basso** di quello attuale, e il criterio "stessi totali dell'app attuale" non varrà per questa card. Propongo anche "entro 30 giorni" al posto di "entro un mese di calendario".
-3. **Deduplica dell'import**: propongo la chiave `giorno locale (YYYY-MM-DD) + importo + operazione + dettagli` (testo normalizzato: spazi compressi, senza distinzione tra maiuscole e minuscole), confrontata **per molteplicità**. Esempio: se nel file ci sono 2 caffè identici nello stesso giorno e su Firestore ce n'è 1, ne importo 1. Va bene?
-4. **Regole di categorizzazione modificabili**: quando le cambi, ricalcolo `new_category` sui movimenti già salvati (con anteprima e conferma) oppure le applico solo ai nuovi import? Propongo un pulsante esplicito "Riapplica alle operazioni esistenti".
-5. **`Group.all`**: oggi non c'è modo di impostarlo dall'app. Aggiungo l'interruttore "Includi nei totali" nel form del gruppo? E un gruppo senza il campo `all` (vecchi dati) lo tratto come `true` (come il default di `createGroup`) o come oggi (escluso ovunque)? Propongo `true`, segnalando la differenza.
-6. **Pareggio di fine anno**: lo mantengo (in Spese → Gruppi) rendendolo idempotente (non ricrea `Pareggio {anno}` se esiste già)?
+1. **Hosting**: si passa da Netlify a **Firebase Hosting**. Sull'iPhone l'app andrà reinstallata dalla Home dal nuovo indirizzo e le notifiche riattivate.
+2. **Abbonamenti in scadenza**: esclusi quelli già rinnovati, finestra di **30 giorni**. Il numero in Home può scendere rispetto all'app attuale (differenza voluta, coperta da un test).
+3. **Deduplica import**: due righe identiche nello stesso file sono **due transazioni distinte** e vanno importate entrambe. Resta da chiarire il caso in cui una o più righe identiche sono già su Firestore (vedi domanda aperta sotto).
+4. **Regole di categorizzazione**: modificabili dall'app; al salvataggio si **ricalcola `new_category`** anche sui movimenti già salvati (anteprima del numero di movimenti che cambiano, poi scrittura in batch).
+5. **`Group.all`**: nessuna modifica. Niente interruttore nell'app, e un gruppo senza il campo resta escluso come oggi.
+6. **Pareggio**: mantenuto e reso **idempotente** (se `Pareggio {anno}` esiste già per un gruppo, non viene ricreato).
+
+### Domanda aperta (serve prima della Fase 5)
+- Deduplica: se il file contiene 2 righe identiche e su Firestore ce n'è già 1 uguale (es. un import parziale precedente), cosa faccio? (a) importo solo la differenza (1); (b) le considero tutte già presenti (0); (c) importo entrambe (2), ma allora ricaricare un file con righe ripetute crea doppioni.
 
 ## Fase 0 — Hotfix notifiche push (`fix-push`, da `main`)
 
