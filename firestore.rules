@@ -1,0 +1,86 @@
+rules_version = '2';
+
+// Ogni utente può leggere e scrivere solo sotto NewMyDB/{proprio uid}. Tutto il resto è negato.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Campi modificati da questa scrittura (tutti, in creazione). Le validazioni guardano solo questi,
+    // così un documento storico con un campo di tipo inatteso resta comunque modificabile negli altri campi.
+    function changed() {
+      return resource == null
+        ? request.resource.data.keys()
+        : request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    function isType(field, type) {
+      return !(field in changed())
+        || request.resource.data[field] == null
+        || (type == 'number' && request.resource.data[field] is number)
+        || (type == 'string' && request.resource.data[field] is string)
+        || (type == 'bool' && request.resource.data[field] is bool)
+        // Le date possono essere stringhe ISO o Timestamp.
+        || (type == 'date' && (request.resource.data[field] is string || request.resource.data[field] is timestamp));
+    }
+
+    function validCommon(userId) {
+      return isType('uid', 'string')
+        && isType('data_ins', 'date')
+        && isType('data_modify', 'date')
+        && (!('ownerId' in changed()) || request.resource.data.ownerId == userId);
+    }
+
+    function validCash() {
+      return isType('conto', 'number') && isType('anticipo', 'number') && isType('otherp', 'number')
+        && isType('otherm', 'number') && isType('data_valore', 'date');
+    }
+
+    function validBuy() {
+      return isType('amount', 'number') && isType('name', 'string') && isType('group', 'string')
+        && isType('icon', 'number') && isType('repeat', 'bool') && isType('uid_father', 'string')
+        && isType('round', 'string') && isType('type_round', 'string')
+        && isType('data_valore', 'date') && isType('data_fine', 'date');
+    }
+
+    function validGroup() {
+      return isType('name', 'string') && isType('icon', 'number') && isType('all', 'bool');
+    }
+
+    function validBank() {
+      return isType('amount', 'number') && isType('data_valore', 'date') && isType('operation', 'string')
+        && isType('detail', 'string') && isType('category', 'string') && isType('new_category', 'string');
+    }
+
+    function validSubscription() {
+      return isType('amount', 'number') && isType('name', 'string') && isType('uid_father', 'string')
+        && isType('data_inizio', 'date') && isType('data_fine', 'date');
+    }
+
+    function validPushToken(tokenId) {
+      return request.resource.data.token == tokenId && isType('updatedAt', 'string');
+    }
+
+    function validWrite(userId, collectionName, docId) {
+      return validCommon(userId) && (
+        (collectionName == 'Cash' && validCash())
+        || (collectionName == 'Buy' && validBuy())
+        || (collectionName == 'Group' && validGroup())
+        || (collectionName == 'Bank' && validBank())
+        || (collectionName == 'Subscription' && validSubscription())
+        || (collectionName == 'Partner')
+        || (collectionName == 'PushToken' && validPushToken(docId))
+        // Impostazioni dell'utente (es. regole di categorizzazione), aggiunte dalla Fase 4.
+        || (collectionName == 'Settings')
+      );
+    }
+
+    match /NewMyDB/{userId}/{collectionName}/{docId} {
+      allow read, delete: if isOwner(userId)
+        && collectionName in ['Bank', 'Buy', 'Cash', 'Group', 'Partner', 'Subscription', 'PushToken', 'Settings'];
+      allow create, update: if isOwner(userId) && validWrite(userId, collectionName, docId);
+    }
+  }
+}
