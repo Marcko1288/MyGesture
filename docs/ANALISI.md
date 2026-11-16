@@ -67,12 +67,13 @@ Date: `utils/firestoreDate.js#toFirestoreDate` accetta `Date`, `Timestamp` (con 
   - Il primo record della serie ha `uid = uid_father = rootUid`; i record sono scritti uno per volta (niente batch).
 - Eliminazione: se `uid_father` è valorizzato puoi scegliere "solo questa" oppure "tutta la serie" (`uid === famiglia || uid_father === famiglia`).
 - Un gruppo non si può eliminare finché ha spese collegate.
-- **Pareggio** (`AllGroupsView`): per ogni gruppo con totale dell'anno precedente ≠ 0 crea `Pareggio {anno-1}` (−totale, 31/12 alle 12:00) e `Riporto {anno}` (+totale, 1/1 alle 12:00). Non è idempotente: se lo premi due volte, duplica.
+- **Pareggio** (`AllGroupsView`): per ogni gruppo con totale dell'anno precedente ≠ 0 crea `Pareggio {anno-1}` (−totale, 31/12 alle 12:00) e `Riporto {anno}` (+totale, 1/1 alle 12:00). Dopo l'esecuzione il totale dell'anno precedente è 0, quindi una seconda esecuzione non crea nulla (idempotente per costruzione).
 
 ### Estratto conto (Bank)
 - Import: cerca in ogni foglio la riga di intestazione con `data`, `operazione` e `importo`; le colonne sono lette **per posizione** (0 = Data … 7 = Importo).
 - Date: oggetto `Date` (grazie a `cellDates: true`), seriale Excel (`SSF.parse_date_code`) o stringa `M/D/YY(YY)` → mezzogiorno locale in ISO.
 - Importo: `Number(valore senza virgole)`; scarta la riga se non è numerico o se la data non è valida → CSV degli errori separato da `;`.
+- ⚠️ Le date impossibili (`13/1/26`, `2/30/26`) non venivano scartate: `new Date` le faceva "traboccare" nel mese/anno successivo.
 - `new_category` = prima regola a keyword (case-insensitive, `it-IT`) trovata in `operation + ' ' + detail`; default `Spese`. Regole: Salvadanaio, Palestra, Auto, Affitto, Stipendio.
 - Viste: filtro Entrate (`amount ≥ 0`), Uscite (`< 0`), Tutto. Con Entrate/Uscite il totale è la somma dei valori assoluti, con Tutto la somma con segno.
 
@@ -112,7 +113,7 @@ Date: `utils/firestoreDate.js#toFirestoreDate` accetta `Date`, `Timestamp` (con 
 10. "In scadenza" usa "+1 mese di calendario" e non "+30 giorni".
 11. `Cash.data_valore` è salvato come `YYYY-MM-DD`, quindi viene interpretato come mezzanotte UTC. In modifica, `inputDate` usa `toISOString()` (UTC): per i record vecchi salvati come ISO a mezzanotte locale, la data mostrata nel form può risultare il giorno prima.
 12. Non c'è nessuna UI per impostare `Group.all`.
-13. Il "Pareggio" non è idempotente.
+13. ~~Il "Pareggio" non è idempotente.~~ **Corretto nella Fase 2:** in realtà lo è. Dopo un pareggio il totale dell'anno precedente vale 0 e il gruppo viene saltato. Il rischio residuo è solo un doppio tocco prima che arrivi lo snapshot (vedi Fase 5: scrittura in batch, pulsante disabilitato).
 14. Le ricorrenze e l'import sono scritti documento per documento (lenti, non atomici).
 15. `createBank` ignora `new_category` in input; `updateRecord` non la ricalcola.
 

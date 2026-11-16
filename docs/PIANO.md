@@ -14,6 +14,17 @@ Branch: `fix-push` (Fase 0, da `main`) e `redesign` (Fasi 1–7). Faccio un comm
 ### Domanda aperta (serve prima della Fase 5)
 - Deduplica: se il file contiene 2 righe identiche e su Firestore ce n'è già 1 uguale (es. un import parziale precedente), cosa faccio? (a) importo solo la differenza (1); (b) le considero tutte già presenti (0); (c) importo entrambe (2), ma allora ricaricare un file con righe ripetute crea doppioni.
 
+## Differenze volute rispetto all'app storica (coperte da `src/domain/__tests__/changes.test.ts`)
+
+| Calcolo | Prima | Ora |
+|---|---|---|
+| Salvadanaio del mese | `category === 'Investimenti, BDR e Salvadanaio'` | `new_category === 'Salvadanaio'` |
+| Abbonamenti in scadenza (Home e filtro) | entro 1 mese di calendario, rinnovati inclusi | entro 30 giorni, rinnovati esclusi (stessa regola della Cloud Function) |
+| Saldo attuale con due record nello stesso giorno | ordine casuale (id del documento) | vince quello inserito per ultimo (`data_ins`) |
+| Import: date impossibili (`13/1/26`, `2/30/26`) | salvate con una data sbagliata | riga in errore (nel CSV degli errori) |
+| Importi in euro | `1234,50 €` in quasi tutte le viste, `1.234,50 €` in Home | `1.234,50 €` ovunque |
+| Deduplica import | assente | giorno + importo + operazione + dettagli, con molteplicità (opzione a) |
+
 ## Fase 0 — Hotfix notifiche push (`fix-push`, da `main`)
 
 Cambiamenti minimi, senza riscrivere l'app:
