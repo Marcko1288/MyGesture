@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { connectAuthEmulator, getAuth } from 'firebase/auth'
+import { browserLocalPersistence, connectAuthEmulator, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth'
 import {
   connectFirestoreEmulator,
   initializeFirestore,
@@ -12,7 +12,9 @@ import type { Messaging } from 'firebase/messaging'
 import { firebaseConfig, useEmulators } from './env'
 
 export const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
+// initializeAuth senza "popupRedirectResolver": l'accesso è solo con email e password, quindi non serve
+// caricare apis.google.com (lo script per i popup). La persistenza è la stessa di getAuth: sessioni esistenti valide.
+export const auth = initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] })
 
 function createFirestore() {
   try {
