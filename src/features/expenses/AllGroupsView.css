@@ -1,1 +1,68 @@
-.all-groups-header-actions{display:flex;align-items:center;width:100%;margin-bottom:4px}.all-groups-heading .back-button{margin:0}.balance-groups-button{margin-left:auto;padding:9px 14px;border:1px solid var(--accent-color);border-radius:9px;background:transparent;color:var(--accent-color);font:inherit;font-weight:700;cursor:pointer}.balance-groups-button:disabled{cursor:wait;opacity:.6}.all-groups-message{margin:0 0 -14px;color:var(--text-muted);font-size:14px}.all-groups-list{width:100%}.all-group-row{display:flex;align-items:center;width:100%;gap:14px;padding:15px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text-main);font:inherit;text-align:left;cursor:pointer}.all-group-row:hover{background:color-mix(in srgb,var(--accent-color) 7%,transparent)}.all-group-row:last-child{border-bottom:0}.all-group-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:color-mix(in srgb,var(--accent-color) 12%,transparent);color:var(--accent-color);font-size:20px}.all-group-row strong{flex:1}.all-group-row b{font-size:17px}
+.all-groups-header-actions {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.all-groups-heading .back-button {
+  margin: 0;
+}
+.balance-groups-button {
+  margin-left: auto;
+  padding: 9px 14px;
+  border: 1px solid var(--accent-color);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--accent-color);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.balance-groups-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.all-groups-message {
+  margin: 0 0 -14px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.all-groups-list {
+  width: 100%;
+}
+.all-group-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 14px;
+  padding: 15px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.all-group-row:hover {
+  background: color-mix(in srgb, var(--accent-color) 7%, transparent);
+}
+.all-group-row:last-child {
+  border-bottom: 0;
+}
+.all-group-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+  color: var(--accent-color);
+  font-size: 20px;
+}
+.all-group-row strong {
+  flex: 1;
+}
+.all-group-row b {
+  font-size: 17px;
+}

@@ -1,12 +1,33 @@
 import { Cell, Label, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
-import { FiBriefcase, FiCoffee, FiCreditCard, FiDollarSign, FiHome, FiMoreHorizontal, FiShoppingBag, FiTool, FiTruck, FiUmbrella } from 'react-icons/fi'
-import { isCurrentYearToDate } from '../utils/buyDateFilters.js'
+import {
+  FiBriefcase,
+  FiCoffee,
+  FiCreditCard,
+  FiDollarSign,
+  FiHome,
+  FiMoreHorizontal,
+  FiShoppingBag,
+  FiTool,
+  FiTruck,
+  FiUmbrella,
+} from 'react-icons/fi'
+import { isCurrentYearToDate } from '../../domain/dates'
 import './ExpensesView.css'
 
 const colors = ['#6366f1', '#22c55e', '#f59e0b', '#ec4899', '#0ea5e9', '#a855f7', '#f97316']
-const groupIcons = [FiShoppingBag, FiHome, FiCreditCard, FiTruck, FiCoffee, FiBriefcase, FiTool, FiUmbrella, FiDollarSign, FiMoreHorizontal]
-const formatCurrency = (value) =>
-  new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)
+const groupIcons = [
+  FiShoppingBag,
+  FiHome,
+  FiCreditCard,
+  FiTruck,
+  FiCoffee,
+  FiBriefcase,
+  FiTool,
+  FiUmbrella,
+  FiDollarSign,
+  FiMoreHorizontal,
+]
+const formatCurrency = (value) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(value)
 
 export default function ExpensesView({ buyRecords = [], groupRecords = [], error, onSelectGroup, onShowAllGroups }) {
   const currentYear = new Date().getFullYear()
@@ -15,11 +36,10 @@ export default function ExpensesView({ buyRecords = [], groupRecords = [], error
     .map((group, index) => {
       const groupId = group.uid ?? group.id
       const groupBuys = buyRecords.filter((buy) => {
-          return buy.group === groupId && isCurrentYearToDate(buy.data_valore)
-        })
+        return buy.group === groupId && isCurrentYearToDate(buy.data_valore)
+      })
       if (!groupBuys.length) return null
-      const value = groupBuys
-        .reduce((sum, buy) => sum + (Number(buy.amount) || 0), 0)
+      const value = groupBuys.reduce((sum, buy) => sum + (Number(buy.amount) || 0), 0)
 
       return {
         id: groupId,
@@ -40,7 +60,12 @@ export default function ExpensesView({ buyRecords = [], groupRecords = [], error
         })
         .reduce((sum, buy) => sum + (Number(buy.amount) || 0), 0)
 
-      return { id: groupId, name: group.name || 'Gruppo senza nome', value, icon: groupIcons[Number(group.icon)] ?? groupIcons[9] }
+      return {
+        id: groupId,
+        name: group.name || 'Gruppo senza nome',
+        value,
+        icon: groupIcons[Number(group.icon)] ?? groupIcons[9],
+      }
     })
     .filter((group) => group.value !== 0)
   const total = expenses.reduce((sum, item) => sum + item.value, 0)
@@ -72,7 +97,13 @@ export default function ExpensesView({ buyRecords = [], groupRecords = [], error
                     {visibleExpenses.map((item) => (
                       <Cell key={item.name} fill={item.color} />
                     ))}
-                    <Label value={currentYear} position="center" fill="var(--text-main)" fontSize={18} fontWeight={800} />
+                    <Label
+                      value={currentYear}
+                      position="center"
+                      fill="var(--text-main)"
+                      fontSize={18}
+                      fontWeight={800}
+                    />
                   </Pie>
                   <Tooltip formatter={(value) => formatCurrency(value)} />
                 </PieChart>
@@ -127,7 +158,9 @@ export default function ExpensesView({ buyRecords = [], groupRecords = [], error
         )}
       </section>
       <div className="all-groups-action">
-        <button type="button" onClick={onShowAllGroups}>Mostra tutti i gruppi</button>
+        <button type="button" onClick={onShowAllGroups}>
+          Mostra tutti i gruppi
+        </button>
       </div>
     </>
   )

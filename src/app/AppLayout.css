@@ -1,1 +1,108 @@
-.menu-brand{display:flex;align-items:center;gap:10px}.menu-heading .user-avatar{display:grid;place-items:center;flex:none;margin-left:0;line-height:1}.quick-add-button{width:34px;height:34px;margin-left:auto;border-radius:50%;background:var(--accent-color);color:#fff;box-shadow:0 5px 14px color-mix(in srgb,var(--accent-color) 38%,transparent);transition:transform .2s,box-shadow .2s}.quick-add-button:hover{background:var(--accent-color)!important;color:#fff!important;box-shadow:0 8px 18px color-mix(in srgb,var(--accent-color) 46%,transparent);transform:translateY(-2px)}.quick-add-button svg{font-size:20px}.quick-add-layer{position:fixed;z-index:10;inset:0;display:grid;place-items:center;padding:24px;background:rgba(16,23,37,.32)}.quick-add-dialog{display:flex;flex-direction:column;gap:10px;width:min(100%,320px);padding:24px;border:1px solid var(--line);border-radius:17px;background:var(--surface);box-shadow:0 20px 60px rgba(21,31,51,.2)}.quick-add-dialog h2{margin:0 0 6px;color:var(--text-main);font-size:29px;font-weight:800}.quick-add-dialog button{display:flex;align-items:center;gap:11px;padding:12px 15px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--text-main);font:inherit;font-weight:400;text-align:left;cursor:pointer}.quick-add-dialog button:hover{border-color:var(--accent-color);background:color-mix(in srgb,var(--accent-color) 10%,transparent)}.quick-add-icon{box-sizing:content-box;width:18px;height:18px;padding:7px;border-radius:8px}.quick-add-icon.cash{background:color-mix(in srgb,var(--accent-color) 14%,transparent);color:var(--accent-color)}.quick-add-icon.group{background:color-mix(in srgb,#a855f7 16%,transparent);color:#a855f7}.quick-add-icon.buy{background:color-mix(in srgb,#f59e0b 16%,transparent);color:#f59e0b}.quick-add-icon.upload{background:color-mix(in srgb,#0ea5e9 16%,transparent);color:#0ea5e9}.quick-add-icon.subscription{background:color-mix(in srgb,var(--accent-color) 14%,transparent);color:var(--accent-color)}
+.menu-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.menu-heading .user-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  margin-left: 0;
+  line-height: 1;
+}
+.quick-add-button {
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent-color) 38%, transparent);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.quick-add-button:hover {
+  background: var(--accent-color) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent-color) 46%, transparent);
+  transform: translateY(-2px);
+}
+.quick-add-button svg {
+  font-size: 20px;
+}
+.quick-add-layer {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 23, 37, 0.32);
+}
+.quick-add-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(100%, 320px);
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgba(21, 31, 51, 0.2);
+}
+.quick-add-dialog h2 {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-size: 29px;
+  font-weight: 800;
+}
+.quick-add-dialog button {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+}
+.quick-add-dialog button:hover {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+}
+.quick-add-icon {
+  box-sizing: content-box;
+  width: 18px;
+  height: 18px;
+  padding: 7px;
+  border-radius: 8px;
+}
+.quick-add-icon.cash {
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  color: var(--accent-color);
+}
+.quick-add-icon.group {
+  background: color-mix(in srgb, #a855f7 16%, transparent);
+  color: #a855f7;
+}
+.quick-add-icon.buy {
+  background: color-mix(in srgb, #f59e0b 16%, transparent);
+  color: #f59e0b;
+}
+.quick-add-icon.upload {
+  background: color-mix(in srgb, #0ea5e9 16%, transparent);
+  color: #0ea5e9;
+}
+.quick-add-icon.subscription {
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  color: var(--accent-color);
+}
+
+.nav-item {
+  text-decoration: none;
+}

@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react'
-import { FiBookOpen, FiCoffee, FiCreditCard, FiDollarSign, FiGift, FiHeart, FiHome, FiMoreHorizontal, FiShoppingBag, FiTruck } from 'react-icons/fi'
-import { buyStore } from '../store/firestoreStore.jsx'
-import { toFirestoreDate } from '../utils/firestoreDate.js'
+import {
+  FiBookOpen,
+  FiCoffee,
+  FiCreditCard,
+  FiDollarSign,
+  FiGift,
+  FiHeart,
+  FiHome,
+  FiMoreHorizontal,
+  FiShoppingBag,
+  FiTruck,
+} from 'react-icons/fi'
+import { buyStore } from '../../data/mutations'
+import { toDate as toFirestoreDate } from '../../domain/dates'
 import './BuyDetailView.css'
 import './DetailInputs.css'
 
@@ -54,7 +65,10 @@ function recurringDates(draft) {
     const candidate = new Date(date)
     if (draft.type_round === 'INI') candidate.setDate(1)
     else if (draft.type_round === 'FIN') candidate.setMonth(candidate.getMonth() + 1, 0)
-    else candidate.setDate(Math.min(start.getDate(), new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()))
+    else
+      candidate.setDate(
+        Math.min(start.getDate(), new Date(candidate.getFullYear(), candidate.getMonth() + 1, 0).getDate()),
+      )
     if (candidate >= start && candidate <= end) dates.push(candidate)
     date.setMonth(date.getMonth() + 1)
   }
@@ -103,19 +117,22 @@ export default function BuyDetailView({ buy = emptyBuy, userId, groupRecords = [
     setError('')
     try {
       const values = {
-          ...draft,
-          amount: Number(draft.amount) || 0,
-          icon: Number(draft.icon) || 0,
-          data_valore: toIsoOrNull(draft.data_valore),
-          data_fine: toIsoOrNull(draft.data_fine),
-        }
+        ...draft,
+        amount: Number(draft.amount) || 0,
+        icon: Number(draft.icon) || 0,
+        data_valore: toIsoOrNull(draft.data_valore),
+        data_fine: toIsoOrNull(draft.data_fine),
+      }
       if (isNew && draft.repeat) {
         if (!draft.data_fine) throw new Error('Inserisci la data fine della ripetizione.')
         const dates = recurringDates(draft)
         if (!dates.length) throw new Error('La frequenza selezionata non genera date valide.')
         const rootUid = `BUY_${crypto.randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()}`
         for (const [index, date] of dates.entries()) {
-          await buyStore.create({ ...values, uid: index === 0 ? rootUid : undefined, uid_father: rootUid, data_valore: date.toISOString() }, userId)
+          await buyStore.create(
+            { ...values, uid: index === 0 ? rootUid : undefined, uid_father: rootUid, data_valore: date.toISOString() },
+            userId,
+          )
         }
       } else if (isNew) await buyStore.create(values, userId)
       else await buyStore.update(buy.uid, values, userId)
@@ -132,9 +149,10 @@ export default function BuyDetailView({ buy = emptyBuy, userId, groupRecords = [
     setError('')
     try {
       const familyId = buy.uid_father || buy.uid
-      const recordsToDelete = mode === 'family'
-        ? buyRecords.filter((record) => record.uid === familyId || record.uid_father === familyId)
-        : [buy]
+      const recordsToDelete =
+        mode === 'family'
+          ? buyRecords.filter((record) => record.uid === familyId || record.uid_father === familyId)
+          : [buy]
       await Promise.all(recordsToDelete.map((record) => buyStore.remove(record.uid ?? record.id, userId)))
       onBack()
     } catch (deleteError) {
@@ -240,7 +258,13 @@ export default function BuyDetailView({ buy = emptyBuy, userId, groupRecords = [
               </label>
               <label>
                 Data fine
-                <input name="data_fine" type="datetime-local" value={draft.data_fine} onChange={change} required={draft.repeat} />
+                <input
+                  name="data_fine"
+                  type="datetime-local"
+                  value={draft.data_fine}
+                  onChange={change}
+                  required={draft.repeat}
+                />
               </label>
             </>
           )}
@@ -250,17 +274,47 @@ export default function BuyDetailView({ buy = emptyBuy, userId, groupRecords = [
           <button className="save-buy" type="submit" disabled={saving}>
             {saving ? 'Salvataggio...' : 'Salva'}
           </button>
-          {!isNew && <button className="delete-buy" type="button" onClick={askDelete} disabled={saving}>Elimina</button>}
+          {!isNew && (
+            <button className="delete-buy" type="button" onClick={askDelete} disabled={saving}>
+              Elimina
+            </button>
+          )}
         </div>
       </form>
       {deleteChoiceOpen && (
         <div className="buy-delete-layer" onClick={() => setDeleteChoiceOpen(false)}>
-          <div className="buy-delete-dialog" role="dialog" aria-modal="true" aria-label="Elimina Buy" onClick={(event) => event.stopPropagation()}>
+          <div
+            className="buy-delete-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Elimina Buy"
+            onClick={(event) => event.stopPropagation()}
+          >
             <h2>Elimina ricorrenza</h2>
             <p>Vuoi eliminare solo questa spesa oppure tutte le spese collegate?</p>
-            <button type="button" className="delete-buy" onClick={() => { setDeleteChoiceOpen(false); remove('single') }}>Solo questa spesa</button>
-            <button type="button" className="delete-buy" onClick={() => { setDeleteChoiceOpen(false); remove('family') }}>Tutte le spese collegate</button>
-            <button type="button" className="cancel-delete-buy" onClick={() => setDeleteChoiceOpen(false)}>Annulla</button>
+            <button
+              type="button"
+              className="delete-buy"
+              onClick={() => {
+                setDeleteChoiceOpen(false)
+                remove('single')
+              }}
+            >
+              Solo questa spesa
+            </button>
+            <button
+              type="button"
+              className="delete-buy"
+              onClick={() => {
+                setDeleteChoiceOpen(false)
+                remove('family')
+              }}
+            >
+              Tutte le spese collegate
+            </button>
+            <button type="button" className="cancel-delete-buy" onClick={() => setDeleteChoiceOpen(false)}>
+              Annulla
+            </button>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { toFirestoreDate } from '../utils/firestoreDate.js'
+import { toDate as toFirestoreDate } from '../../domain/dates'
 import './StatementDetailView.css'
 
 const formatCurrency = (value, currency = 'EUR') =>
@@ -23,7 +23,9 @@ export default function StatementDetailView({ record, onBack }) {
   return (
     <>
       <div className="section-heading statement-detail-heading">
-        <button type="button" className="back-button" onClick={onBack}>Indietro</button>
+        <button type="button" className="back-button" onClick={onBack}>
+          Indietro
+        </button>
         <h1>Dettaglio operazione</h1>
       </div>
       <section className="chart-card statement-detail-card" aria-label="Dettaglio operazione">

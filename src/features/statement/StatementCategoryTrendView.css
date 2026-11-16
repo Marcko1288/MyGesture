@@ -1,1 +1,61 @@
-.statement-trend-heading .back-button{margin-bottom:4px}.statement-trend-heading p{text-transform:none;letter-spacing:normal;font-size:15px;font-weight:600}.statement-trend-wrap{height:260px;margin-top:18px}.statement-trend-details{display:grid;gap:20px}.statement-trend-month{display:grid;gap:0}.statement-trend-month-heading{display:flex;align-items:center;gap:12px;padding:0 4px 9px;color:var(--text-main);text-transform:capitalize}.statement-trend-month-heading strong{margin-right:auto}.statement-trend-month-heading b{font-size:17px}.statement-expand-button{display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--accent-color);border-radius:8px;background:transparent;color:var(--accent-color);font-size:19px;cursor:pointer}.statement-trend-empty{margin:5px 4px 0!important;color:var(--text-muted)!important;font-size:14px!important}@media(max-width:600px){.statement-trend-wrap{height:230px}.statement-trend-details{padding:20px}}
+.statement-trend-heading .back-button {
+  margin-bottom: 4px;
+}
+.statement-trend-heading p {
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 15px;
+  font-weight: 600;
+}
+.statement-trend-wrap {
+  height: 260px;
+  margin-top: 18px;
+}
+.statement-trend-details {
+  display: grid;
+  gap: 20px;
+}
+.statement-trend-month {
+  display: grid;
+  gap: 0;
+}
+.statement-trend-month-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px 9px;
+  color: var(--text-main);
+  text-transform: capitalize;
+}
+.statement-trend-month-heading strong {
+  margin-right: auto;
+}
+.statement-trend-month-heading b {
+  font-size: 17px;
+}
+.statement-expand-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--accent-color);
+  font-size: 19px;
+  cursor: pointer;
+}
+.statement-trend-empty {
+  margin: 5px 4px 0 !important;
+  color: var(--text-muted) !important;
+  font-size: 14px !important;
+}
+@media (max-width: 600px) {
+  .statement-trend-wrap {
+    height: 230px;
+  }
+  .statement-trend-details {
+    padding: 20px;
+  }
+}

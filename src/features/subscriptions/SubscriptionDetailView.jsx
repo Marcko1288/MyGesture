@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { subscriptionStore } from '../store/firestoreStore.jsx'
-import { toFirestoreDate } from '../utils/firestoreDate.js'
+import { subscriptionStore } from '../../data/mutations'
+import { toDate as toFirestoreDate } from '../../domain/dates'
 import './SubscriptionDetailView.css'
 
 const emptySubscription = {}
@@ -77,24 +77,79 @@ export default function SubscriptionDetailView({ subscription = emptySubscriptio
     const end = new Date(start)
     end.setFullYear(end.getFullYear() + 1)
     end.setDate(end.getDate() - 1)
-    onRenew({ ...subscription, uid: undefined, id: undefined, uid_father: subscription.uid_father || subscription.uid || subscription.id, data_inizio: start.toISOString(), data_fine: end.toISOString() })
+    onRenew({
+      ...subscription,
+      uid: undefined,
+      id: undefined,
+      uid_father: subscription.uid_father || subscription.uid || subscription.id,
+      data_inizio: start.toISOString(),
+      data_fine: end.toISOString(),
+    })
   }
 
   return (
     <>
       <div className="section-heading subscription-detail-heading">
-        <div className="subscription-detail-header-actions"><button type="button" className="back-button" onClick={onBack}>Indietro</button>{!isNew && <button type="button" className="renew-subscription" onClick={renew}>Rinnovo</button>}</div>
+        <div className="subscription-detail-header-actions">
+          <button type="button" className="back-button" onClick={onBack}>
+            Indietro
+          </button>
+          {!isNew && (
+            <button type="button" className="renew-subscription" onClick={renew}>
+              Rinnovo
+            </button>
+          )}
+        </div>
         <h1>{isNew ? 'Nuovo abbonamento' : 'Dettaglio abbonamento'}</h1>
       </div>
       <form className="subscription-detail-card" onSubmit={save}>
-        <label>Nome abbonamento<input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} required /></label>
-        <label>Importo<input type="number" min="0" step="0.01" value={draft.amount} onChange={(event) => setDraft((current) => ({ ...current, amount: event.target.value }))} required /></label>
-        <label>Data inizio<input type="date" value={draft.data_inizio} onChange={(event) => setDraft((current) => ({ ...current, data_inizio: event.target.value }))} required /></label>
-        <label>Data scadenza<input type="date" value={draft.data_fine} onChange={(event) => setDraft((current) => ({ ...current, data_fine: event.target.value }))} required /></label>
+        <label>
+          Nome abbonamento
+          <input
+            value={draft.name}
+            onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
+            required
+          />
+        </label>
+        <label>
+          Importo
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={draft.amount}
+            onChange={(event) => setDraft((current) => ({ ...current, amount: event.target.value }))}
+            required
+          />
+        </label>
+        <label>
+          Data inizio
+          <input
+            type="date"
+            value={draft.data_inizio}
+            onChange={(event) => setDraft((current) => ({ ...current, data_inizio: event.target.value }))}
+            required
+          />
+        </label>
+        <label>
+          Data scadenza
+          <input
+            type="date"
+            value={draft.data_fine}
+            onChange={(event) => setDraft((current) => ({ ...current, data_fine: event.target.value }))}
+            required
+          />
+        </label>
         {error && <p className="form-error">{error}</p>}
         <div className="subscription-detail-actions">
-          <button type="submit" disabled={saving}>{saving ? 'Salvataggio...' : 'Salva'}</button>
-          {!isNew && <button type="button" className="delete-subscription" onClick={remove} disabled={saving}>Elimina</button>}
+          <button type="submit" disabled={saving}>
+            {saving ? 'Salvataggio...' : 'Salva'}
+          </button>
+          {!isNew && (
+            <button type="button" className="delete-subscription" onClick={remove} disabled={saving}>
+              Elimina
+            </button>
+          )}
         </div>
       </form>
     </>

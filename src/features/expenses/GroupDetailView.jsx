@@ -1,6 +1,17 @@
 import { useState } from 'react'
-import { FiBriefcase, FiCoffee, FiCreditCard, FiDollarSign, FiHome, FiMoreHorizontal, FiShoppingBag, FiTool, FiTruck, FiUmbrella } from 'react-icons/fi'
-import { groupStore } from '../store/firestoreStore.jsx'
+import {
+  FiBriefcase,
+  FiCoffee,
+  FiCreditCard,
+  FiDollarSign,
+  FiHome,
+  FiMoreHorizontal,
+  FiShoppingBag,
+  FiTool,
+  FiTruck,
+  FiUmbrella,
+} from 'react-icons/fi'
+import { groupStore } from '../../data/mutations'
 import './GroupDetailView.css'
 
 const groupIcons = [
@@ -58,7 +69,9 @@ export default function GroupDetailView({ group = {}, userId, buyRecords = [], o
   return (
     <>
       <div className="section-heading group-detail-heading">
-        <button type="button" className="back-button" onClick={onBack}>Indietro</button>
+        <button type="button" className="back-button" onClick={onBack}>
+          Indietro
+        </button>
         <h1>{isNew ? 'Nuovo' : 'Modifica'}</h1>
       </div>
       <form className="group-detail-card" onSubmit={save}>
@@ -70,7 +83,15 @@ export default function GroupDetailView({ group = {}, userId, buyRecords = [], o
           <legend>Icona</legend>
           <div className="group-icon-options">
             {groupIcons.map(({ id, label, icon: Icon }) => (
-              <button type="button" key={id} className={icon === id ? 'selected' : ''} title={label} aria-label={label} aria-pressed={icon === id} onClick={() => setIcon(id)}>
+              <button
+                type="button"
+                key={id}
+                className={icon === id ? 'selected' : ''}
+                title={label}
+                aria-label={label}
+                aria-pressed={icon === id}
+                onClick={() => setIcon(id)}
+              >
                 <Icon />
               </button>
             ))}
@@ -78,10 +99,24 @@ export default function GroupDetailView({ group = {}, userId, buyRecords = [], o
         </fieldset>
         {error && <p className="form-error">{error}</p>}
         <div className="group-detail-actions">
-          <button type="submit" disabled={saving}>{saving ? 'Salvataggio...' : 'Salva'}</button>
-          {!isNew && <button type="button" className="delete-group" onClick={remove} disabled={saving || hasLinkedBuys} title={hasLinkedBuys ? 'Elimina prima tutti i Buy collegati' : undefined}>Elimina</button>}
+          <button type="submit" disabled={saving}>
+            {saving ? 'Salvataggio...' : 'Salva'}
+          </button>
+          {!isNew && (
+            <button
+              type="button"
+              className="delete-group"
+              onClick={remove}
+              disabled={saving || hasLinkedBuys}
+              title={hasLinkedBuys ? 'Elimina prima tutti i Buy collegati' : undefined}
+            >
+              Elimina
+            </button>
+          )}
         </div>
-        {!isNew && hasLinkedBuys && <p className="group-delete-note">Non puoi eliminare il gruppo finché ha Buy collegati.</p>}
+        {!isNew && hasLinkedBuys && (
+          <p className="group-delete-note">Non puoi eliminare il gruppo finché ha Buy collegati.</p>
+        )}
       </form>
     </>
   )

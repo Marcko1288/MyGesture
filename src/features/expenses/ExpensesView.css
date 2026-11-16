@@ -1,1 +1,50 @@
-.expense-group-button{display:flex;align-items:center;gap:10px;width:100%;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.expense-group-button:hover>span:not(.expense-group-icon){text-decoration:underline}.expense-group-button:focus-visible{border-radius:4px;outline:2px solid var(--accent-color);outline-offset:3px}.expense-group-button b{margin-left:auto;color:var(--text-main)}.expense-group-icon{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:color-mix(in srgb,var(--accent-color) 12%,transparent);color:var(--accent-color);font-size:18px}.all-groups-action{display:flex;justify-content:center;margin:28px 0}.all-groups-action button{padding:11px 17px;border:1px solid var(--accent-color);border-radius:10px;background:var(--accent-color);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.expense-group-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.expense-group-button:hover > span:not(.expense-group-icon) {
+  text-decoration: underline;
+}
+.expense-group-button:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid var(--accent-color);
+  outline-offset: 3px;
+}
+.expense-group-button b {
+  margin-left: auto;
+  color: var(--text-main);
+}
+.expense-group-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent-color) 12%, transparent);
+  color: var(--accent-color);
+  font-size: 18px;
+}
+.all-groups-action {
+  display: flex;
+  justify-content: center;
+  margin: 28px 0;
+}
+.all-groups-action button {
+  padding: 11px 17px;
+  border: 1px solid var(--accent-color);
+  border-radius: 10px;
+  background: var(--accent-color);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

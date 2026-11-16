@@ -1,4 +1,4 @@
-import { toFirestoreDate } from '../utils/firestoreDate.js'
+import { toDate as toFirestoreDate } from '../../domain/dates'
 import { FiDownload } from 'react-icons/fi'
 
 function cashTotal(cash) {
