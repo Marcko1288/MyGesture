@@ -1,7 +1,9 @@
 {
   "name": "mygesture-functions",
   "private": true,
-  "engines": { "node": "22" },
+  "engines": {
+    "node": "22"
+  },
   "main": "index.js",
   "dependencies": {
     "firebase-admin": "^14.5.1",
