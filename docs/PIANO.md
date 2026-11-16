@@ -67,6 +67,8 @@ I test di confronto ("golden") eseguono **le funzioni originali copiate tali e q
 
 Token CSS in Tailwind v4 (`@theme`), tema sistema/chiaro/scuro, colore principale dalla palette attuale. Componenti in `src/ui/`: `Card`, `ListRow` (con swipe), `Amount` (formattazione `it-IT` + `aria-label` leggibile), `BottomSheet` (`<dialog>`, trascinamento per chiudere), `TabBar`, `Skeleton`, `EmptyState`, `ErrorState`, `OfflineBanner`, `Toast` (con azione "Annulla"), `SegmentedControl`, `Chip`. Safe area, `viewport-fit=cover`, `prefers-reduced-motion`. Font di sistema. Eliminazione dei 17 file `.css`.
 
+> Nota (16/11/2026): i file `.css` delle viste storiche vengono eliminati nella Fase 4, man mano che ogni schermata viene riscritta con i nuovi componenti; nella Fase 3 seguono già i colori e il tema del design system tramite variabili ponte. Il catalogo dei componenti è su `/altro/componenti`.
+
 ## Fase 4 — Schermate
 
 Oggi (saldo, questo mese, spese dell'anno + mini grafico, in scadenza, ultimi movimenti), Spese, Conto, Risparmi/storico, Abbonamenti, Impostazioni (tema, colore, notifiche, regole di categoria salvate in `NewMyDB/{uid}/Settings/categoryRules`, un nuovo documento in una nuova collezione), Login. Ogni vista gestisce i 4 stati: caricamento, vuoto, errore e offline.
