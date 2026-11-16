@@ -46,7 +46,8 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              'min-h-10 flex-1 rounded-[8px] px-2 text-[14px] font-semibold transition-colors duration-150',
+              'min-h-10 flex-1 rounded-[8px] px-1.5 font-semibold whitespace-nowrap transition-colors duration-150',
+              options.length > 3 ? 'text-[13px]' : 'text-[14px]',
               selected ? 'bg-surface text-fg shadow-card dark:bg-[#636366]' : 'text-muted',
             )}
           >

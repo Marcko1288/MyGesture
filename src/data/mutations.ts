@@ -61,22 +61,6 @@ export async function commitInBatches(
   }
 }
 
-function storeFor<K extends Entity>(entity: K) {
-  return {
-    create: (values: Partial<EntityMap[K]>, userId: string) => createRecord(entity, values, userId),
-    update: (uid: string, values: Partial<EntityMap[K]>, userId: string) => updateRecord(entity, uid, values, userId),
-    remove: (uid: string, userId: string) => deleteRecord(entity, uid, userId),
-  }
-}
-
-/** Stessa interfaccia dello store storico, usata dalle viste finché non vengono riscritte (Fase 4). */
-export const bankStore = storeFor('bank')
-export const buyStore = storeFor('buy')
-export const cashStore = storeFor('cash')
-export const groupStore = storeFor('group')
-export const partnerStore = storeFor('partner')
-export const subscriptionStore = storeFor('subscription')
-
 /** Operazione di creazione per un batch (stessi default e ownerId di createRecord). */
 export function createOperation<K extends Entity>(entity: K, values: Partial<EntityMap[K]>, userId: string) {
   const ownerId = requireUserId(userId)
