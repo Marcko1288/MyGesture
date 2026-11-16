@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), firebaseMessagingSw()],
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts', 'functions/**/*.test.js'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'functions/**/*.test.js'],
     env: { TZ: 'Europe/Rome' },
   },
 })

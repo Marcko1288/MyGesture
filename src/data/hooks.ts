@@ -1,15 +1,22 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import type { Bank, Buy, Cash, CollectionName, Group, Subscription } from '../domain/types'
 import { toDate } from '../domain/dates'
-import { getCollectionState, subscribeCollection, type CollectionState } from './collectionStore'
+import { getCollectionState, retryCollection, subscribeCollection, type CollectionState } from './collectionStore'
 import { useUserId } from './auth'
 
+export interface CollectionResult<T> extends CollectionState<T> {
+  /** Riprova dopo un errore. */
+  retry: () => void
+}
+
 /** Dati di una collezione dell'utente corrente, aggiornati in tempo reale. */
-export function useCollection<T>(name: CollectionName): CollectionState<T> {
+export function useCollection<T>(name: CollectionName): CollectionResult<T> {
   const userId = useUserId()
   const subscribe = useCallback((listener: () => void) => subscribeCollection(userId, name, listener), [userId, name])
   const getSnapshot = useCallback(() => getCollectionState<T>(userId, name), [userId, name])
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  const retry = useCallback(() => retryCollection(userId, name), [userId, name])
+  return useMemo(() => ({ ...state, retry }), [state, retry])
 }
 
 /** Record Cash ordinati dal più recente (per data_valore). */
@@ -30,7 +37,7 @@ export interface DateRange {
  * Il filtro è lato client perché data_valore può essere stringa ISO o Timestamp
  * (una query per intervallo su Firestore non li confronterebbe correttamente).
  */
-export function useBankRecords(range?: DateRange): CollectionState<Bank> {
+export function useBankRecords(range?: DateRange): CollectionResult<Bank> {
   const state = useCollection<Bank>('Bank')
   const from = range?.from?.getTime()
   const to = range?.to?.getTime()

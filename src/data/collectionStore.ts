@@ -104,6 +104,16 @@ export function getCollectionState<T>(userId: string, name: CollectionName): Col
   return (entries.get(keyOf(userId, name))?.state ?? initialState) as CollectionState<T>
 }
 
+/** Riapre il listener di una collezione dopo un errore (pulsante "Riprova"). */
+export function retryCollection(userId: string, name: CollectionName) {
+  const entry = entries.get(keyOf(userId, name))
+  if (!entry) return
+  entry.unsubscribe?.()
+  entry.unsubscribe = null
+  emit(entry, { ...entry.state, status: 'loading', error: null })
+  start(entry, userId, name)
+}
+
 /** Ferma tutti i listener (al logout). */
 export function resetCollections() {
   for (const [key, entry] of entries) {
