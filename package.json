@@ -14,7 +14,10 @@
     "test:watch": "TZ=Europe/Rome vitest",
     "preview": "vite preview",
     "emulators": "firebase emulators:start",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-mygesture \"vitest run --config vitest.rules.config.ts\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-mygesture \"vitest run --config vitest.rules.config.ts\"",
+    "dev:emulator": "vite --mode emulator",
+    "test:e2e": "firebase emulators:exec --only auth,firestore --project demo-mygesture \"node scripts/seed-emulator.mjs && TZ=Europe/Rome playwright test\"",
+    "assets:pwa": "python3 scripts/generate-pwa-assets.py"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -29,12 +32,15 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.5",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "firebase-tools": "^15.36.0",
     "oxlint": "^1.75.0",
+    "playwright-core": "^1.63.0",
     "prettier": "^3.10.1",
     "typescript": "^7.0.2",
     "vite": "^8.2.0",
