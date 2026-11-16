@@ -1,10 +1,4 @@
 const firebaseConfig = {
-  // apiKey: "LA_TUA_API_KEY",
-  // authDomain: "IL_TUO_DOMINIO.firebaseapp.com",
-  // projectId: "IL_TUO_PROJECT_ID",
-  // storageBucket: "IL_TUO_BUCKET.appspot.com",
-  // messagingSenderId: "IL_TUO_SENDER_ID",
-  // appId: "IL_TUO_APP_ID"
   apiKey: "AIzaSyB5op4aWJ4jdCaKmy2BsLJGsz5F5ZlFlV8",
   authDomain: "mygestion-446b9.firebaseapp.com",
   projectId: "mygestion-446b9",
@@ -21,4 +15,22 @@ if (!window.firebase.apps.length) {
 
 export const auth = window.firebase.auth();
 export const db = window.firebase.firestore?.();
-export const messaging = window.firebase.messaging?.();
+export const functions = window.firebase.functions?.();
+
+let messagingInstance;
+
+/**
+ * Restituisce l'istanza di Firebase Messaging, oppure null se il browser non la supporta
+ * (es. Safari su iPhone fuori dall'app installata in Home). Non solleva mai eccezioni,
+ * così l'app si avvia anche dove le push non sono disponibili.
+ */
+export async function getMessagingInstance() {
+  if (messagingInstance !== undefined) return messagingInstance;
+  try {
+    const supported = await window.firebase.messaging?.isSupported?.();
+    messagingInstance = supported ? window.firebase.messaging() : null;
+  } catch {
+    messagingInstance = null;
+  }
+  return messagingInstance;
+}

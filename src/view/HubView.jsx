@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { FiBell, FiChevronRight, FiCreditCard, FiDollarSign, FiFileText, FiHome, FiLayers, FiLogOut, FiMenu, FiPlus, FiSettings, FiShoppingBag, FiUpload, FiX } from 'react-icons/fi'
 import { auth } from '../firebase/firebase'
+import { syncPushToken } from '../firebase/pushNotifications.js'
 import { bankStore, buyStore, cashStore, groupStore, subscriptionStore } from '../store/firestoreStore.jsx'
 
 import HomeView from "../view/HomeView.jsx"
@@ -65,6 +66,14 @@ export default function HubView({ user }) {
         localStorage.setItem('mygesture-theme', theme);
         localStorage.setItem('mygesture-color', color)
     }, [theme, color]);
+
+    useEffect(() => {
+        // Rinnova il token push a ogni avvio e quando l'app torna in primo piano.
+        syncPushToken(user.uid, { force: true })
+        const onVisible = () => { if (document.visibilityState === 'visible') syncPushToken(user.uid) }
+        document.addEventListener('visibilitychange', onVisible)
+        return () => document.removeEventListener('visibilitychange', onVisible)
+    }, [user.uid]);
 
     useEffect(() => {
         cashStore.subscribe(user.uid, (records) => {
