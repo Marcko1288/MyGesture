@@ -3,15 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0175C2" />
+    <meta name="theme-color" content="#f2f2f7" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="My Gesture" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>My Gesture</title>
+    <script>
+      // Tema prima del primo disegno, per evitare il lampo chiaro/scuro all'avvio.
+      try {
+        var theme = localStorage.getItem('mygesture-theme') || 'system'
+        var dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.dataset.mode = dark ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      } catch (error) {
+        document.documentElement.dataset.mode = 'light'
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
