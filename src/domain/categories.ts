@@ -26,3 +26,31 @@ export function determineNewCategory(
   )
   return rule?.category ?? DEFAULT_CATEGORY
 }
+
+/** Pulisce le regole inserite dall'utente: spazi, keyword vuote, categorie senza keyword. */
+export function normalizeRules(rules: CategoryRule[]): CategoryRule[] {
+  return rules
+    .map((rule) => ({
+      category: rule.category.trim(),
+      keywords: [...new Set(rule.keywords.map((keyword) => keyword.trim()).filter(Boolean))],
+    }))
+    .filter((rule) => rule.category && rule.keywords.length)
+}
+
+export interface CategoryChange<T> {
+  record: T
+  from: string
+  to: string
+}
+
+/** Movimenti la cui categoria cambia applicando le regole (per il ricalcolo dopo una modifica). */
+export function recategorize<T extends { operation?: string; detail?: string; new_category?: string }>(
+  records: T[],
+  rules: CategoryRule[],
+): CategoryChange<T>[] {
+  return records.flatMap((record) => {
+    const to = determineNewCategory(record.operation, record.detail, rules)
+    const from = record.new_category ?? ''
+    return from === to ? [] : [{ record, from, to }]
+  })
+}
