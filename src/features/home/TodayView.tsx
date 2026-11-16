@@ -172,7 +172,7 @@ function ExpiringSection() {
         action={
           <Link
             to={`${paths.subscriptions}?filtro=expiring`}
-            className="inline-flex min-h-11 items-center text-[15px] text-accent-strong"
+            className="inline-flex min-h-11 min-w-11 items-center justify-end text-[15px] text-accent-strong"
           >
             Tutti
           </Link>
@@ -220,7 +220,10 @@ function RecentSection() {
     <>
       <SectionTitle
         action={
-          <Link to={paths.statement} className="inline-flex min-h-11 items-center text-[15px] text-accent-strong">
+          <Link
+            to={paths.statement}
+            className="inline-flex min-h-11 min-w-11 items-center justify-end text-[15px] text-accent-strong"
+          >
             Tutti
           </Link>
         }
