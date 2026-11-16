@@ -76,3 +76,15 @@ export const cashStore = storeFor('cash')
 export const groupStore = storeFor('group')
 export const partnerStore = storeFor('partner')
 export const subscriptionStore = storeFor('subscription')
+
+/** Operazione di creazione per un batch (stessi default e ownerId di createRecord). */
+export function createOperation<K extends Entity>(entity: K, values: Partial<EntityMap[K]>, userId: string) {
+  const ownerId = requireUserId(userId)
+  const record = { ...factories[entity](values), ownerId } as EntityMap[K]
+  const operation: BatchOperation = {
+    type: 'set',
+    ref: userDoc(ownerId, entityCollections[entity], record.uid),
+    data: record as unknown as Record<string, unknown>,
+  }
+  return { record, operation }
+}
