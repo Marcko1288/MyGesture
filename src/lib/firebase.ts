@@ -7,7 +7,7 @@ import {
   persistentLocalCache,
   persistentMultipleTabManager,
 } from 'firebase/firestore'
-import { connectFunctionsEmulator, getFunctions } from 'firebase/functions'
+import type { Functions } from 'firebase/functions'
 import type { Messaging } from 'firebase/messaging'
 import { firebaseConfig, useEmulators } from './env'
 
@@ -28,12 +28,10 @@ function createFirestore() {
 }
 
 export const db = createFirestore()
-export const functions = getFunctions(app)
 
 if (useEmulators) {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true })
   connectFirestoreEmulator(db, '127.0.0.1', 8080)
-  connectFunctionsEmulator(functions, '127.0.0.1', 5001)
 }
 
 let messagingPromise: Promise<Messaging | null> | undefined
@@ -47,4 +45,16 @@ export function getMessagingInstance(): Promise<Messaging | null> {
       return null
     })
   return messagingPromise
+}
+
+let functionsPromise: Promise<Functions> | undefined
+
+/** Cloud Functions caricate solo quando servono (es. notifica di prova). */
+export function getFunctionsInstance(): Promise<Functions> {
+  functionsPromise ??= import('firebase/functions').then(({ connectFunctionsEmulator, getFunctions }) => {
+    const functions = getFunctions(app)
+    if (useEmulators) connectFunctionsEmulator(functions, '127.0.0.1', 5001)
+    return functions
+  })
+  return functionsPromise
 }

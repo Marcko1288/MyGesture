@@ -5,19 +5,7 @@
  */
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatCompactEuro, formatCurrency } from '../domain/format'
-
-const SERIES = 8
-
-/** Colore della serie in base alla posizione STABILE dell'entità (non al suo valore). Oltre l'8ª: grigio "Altro". */
-export function seriesColor(index: number): string {
-  return index >= 0 && index < SERIES ? `var(--series-${index + 1})` : 'var(--series-other)'
-}
-
-export interface DonutSlice {
-  key: string
-  value: number
-  color: string
-}
+import type { BarDatum, DonutSlice } from './charts'
 
 /** Ciambella compatta con il totale al centro. Le fette sono decorative: i dati sono nella legenda accanto. */
 export function Donut({ data, centerLabel, size = 168 }: { data: DonutSlice[]; centerLabel?: string; size?: number }) {
@@ -88,12 +76,6 @@ export function MiniBars({
   )
 }
 
-export interface BarDatum {
-  key: string
-  label: string
-  value: number
-}
-
 /**
  * Barre con asse X (periodi) e asse Y compatto, tooltip al tocco. Con `signed` le barre negative
  * sono rosse e le positive verdi (variazioni); altrimenti colore principale.
@@ -162,29 +144,4 @@ export function Bars({
       </ResponsiveContainer>
     </div>
   )
-}
-
-/** Barra di avanzamento semplice (es. uscite rispetto alle entrate). */
-export function ProgressBar({ value, max, label }: { value: number; max: number; label: string }) {
-  const ratio = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0
-  return (
-    <div
-      role="progressbar"
-      aria-label={label}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-valuenow={Math.round(ratio * 100)}
-      className="h-2 overflow-hidden rounded-full bg-surface-2"
-    >
-      <div
-        className="h-full rounded-full bg-accent transition-[width] duration-200"
-        style={{ width: `${ratio * 100}%` }}
-      />
-    </div>
-  )
-}
-
-/** Pallino colorato di legenda accanto al nome (l'identità non è affidata al solo colore). */
-export function LegendDot({ color }: { color: string }) {
-  return <span aria-hidden="true" className="inline-block size-3 shrink-0 rounded-full" style={{ background: color }} />
 }

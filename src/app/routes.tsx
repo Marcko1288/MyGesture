@@ -1,25 +1,27 @@
-import type { ReactNode } from 'react'
+import { lazy, type ReactNode } from 'react'
 import { Navigate, useLocation, useParams, type RouteObject } from 'react-router-dom'
 import { useAuth } from '../data/auth'
 import AppLayout from './AppLayout'
 import { LoadingLabel, Skeleton } from '../ui'
 import { paths, sheetHref, type SheetKind } from './navigation'
-import ImportStatement from '../features/statement/ImportStatement'
 import LoginScreen from '../features/auth/LoginScreen'
 import TodayView from '../features/home/TodayView'
-import ExpensesOverview from '../features/expenses/ExpensesOverview'
-import GroupsList from '../features/expenses/GroupsList'
-import GroupDetail from '../features/expenses/GroupDetail'
-import StatementOverview from '../features/statement/StatementOverview'
-import CategoryDetail from '../features/statement/CategoryDetail'
-import MovementDetail from '../features/statement/MovementDetail'
-import SavingsOverview from '../features/savings/SavingsOverview'
-import CashHistory from '../features/savings/CashHistory'
-import SubscriptionsList from '../features/subscriptions/SubscriptionsList'
-import SettingsView from '../features/settings/SettingsView'
-import CategoryRulesView from '../features/settings/CategoryRulesView'
-import MoreView from '../features/more/MoreView'
-import CatalogView from '../features/catalog/CatalogView'
+
+// Schermate caricate su richiesta: il primo avvio scarica solo Oggi e Login.
+const ImportStatement = lazy(() => import('../features/statement/ImportStatement'))
+const ExpensesOverview = lazy(() => import('../features/expenses/ExpensesOverview'))
+const GroupsList = lazy(() => import('../features/expenses/GroupsList'))
+const GroupDetail = lazy(() => import('../features/expenses/GroupDetail'))
+const StatementOverview = lazy(() => import('../features/statement/StatementOverview'))
+const CategoryDetail = lazy(() => import('../features/statement/CategoryDetail'))
+const MovementDetail = lazy(() => import('../features/statement/MovementDetail'))
+const SavingsOverview = lazy(() => import('../features/savings/SavingsOverview'))
+const CashHistory = lazy(() => import('../features/savings/CashHistory'))
+const SubscriptionsList = lazy(() => import('../features/subscriptions/SubscriptionsList'))
+const SettingsView = lazy(() => import('../features/settings/SettingsView'))
+const CategoryRulesView = lazy(() => import('../features/settings/CategoryRulesView'))
+const MoreView = lazy(() => import('../features/more/MoreView'))
+const CatalogView = lazy(() => import('../features/catalog/CatalogView'))
 
 function Loading() {
   return (
