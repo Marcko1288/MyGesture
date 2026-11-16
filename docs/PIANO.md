@@ -75,6 +75,11 @@ Oggi (saldo, questo mese, spese dell'anno + mini grafico, in scadenza, ultimi mo
 
 > Nota: le regole di categoria richiedono una nuova collezione `Settings` sotto `NewMyDB/{uid}`. È un'**aggiunta** (le collezioni esistenti restano invariate) e le rules la coprono con lo stesso vincolo sull'uid.
 
+> Esito (16/11/2026): schermate riscritte con i nuovi componenti e le funzioni di `src/domain`. Restano i form storici
+> (spesa, saldo, gruppo, abbonamento, import) dentro la nuova shell: diventano fogli dal basso nella Fase 5, insieme alla
+> rimozione di `App.css`. L'eliminazione con "Annulla" è già attiva da swipe (storico saldo, spese, abbonamenti).
+> La vecchia pagina "Andamento" della categoria è unita alla pagina della categoria (il vecchio URL reindirizza).
+
 ## Fase 5 — Inserimento e import
 
 Form a foglio dal basso (importo in primo piano, `inputmode="decimal"`, data di default oggi, chip con icone), salvataggio ottimistico con toast, eliminazione annullabile (rimozione ritardata di circa 5 s, con ripristino), swipe sulle righe. Import XLSX in un Web Worker: anteprima (righe lette/valide/errori/duplicati, totale entrate/uscite), scrittura in `writeBatch` da massimo 500 operazioni con barra di avanzamento, CSV degli errori. Ricorrenze in batch.
