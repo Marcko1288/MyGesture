@@ -117,3 +117,24 @@ export function recentMovements(records: Bank[], limit = 5, today = new Date()):
     records.filter((record) => (toDate(record.data_valore)?.getTime() ?? Infinity) < startOfTomorrow),
   ).slice(0, limit)
 }
+
+/**
+ * Ordine stabile delle categorie per assegnare i colori dei grafici: il colore segue la categoria,
+ * non la sua posizione nel mese. Prima le categorie delle regole, poi "Spese", poi le altre in ordine alfabetico.
+ */
+export function categoryColorOrder(records: Bank[], ruleCategories: string[]): string[] {
+  const seen = new Set(records.map(categoryOf))
+  const ordered = [...new Set([...ruleCategories, DEFAULT_CATEGORY])]
+  const others = [...seen].filter((name) => !ordered.includes(name)).sort((a, b) => a.localeCompare(b, 'it'))
+  return [...ordered, ...others]
+}
+
+/** Primo mese con movimenti (per limitare la navigazione tra i mesi). */
+export function firstMonthWithData(records: Bank[]): MonthKey | null {
+  let first: number | null = null
+  for (const record of records) {
+    const time = toDate(record.data_valore)?.getTime()
+    if (time !== undefined && (first === null || time < first)) first = time
+  }
+  return first === null ? null : monthKey(new Date(first))
+}
