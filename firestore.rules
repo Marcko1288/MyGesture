@@ -63,6 +63,8 @@ service cloud.firestore {
       return request.resource.data.token == tokenId && isType('updatedAt', 'string');
     }
 
+    // Collezioni di MyGesture: tipi validati. Le altre collezioni dell'utente (es. Contract, Holiday*,
+    // SCHistory, Subcontract, User, usate da altre app sullo stesso progetto) restano accessibili al proprietario.
     function validWrite(userId, collectionName, docId) {
       return validCommon(userId) && (
         (collectionName == 'Cash' && validCash())
@@ -70,17 +72,19 @@ service cloud.firestore {
         || (collectionName == 'Group' && validGroup())
         || (collectionName == 'Bank' && validBank())
         || (collectionName == 'Subscription' && validSubscription())
-        || (collectionName == 'Partner')
         || (collectionName == 'PushToken' && validPushToken(docId))
-        // Impostazioni dell'utente (es. regole di categorizzazione), aggiunte dalla Fase 4.
-        || (collectionName == 'Settings')
+        || !(collectionName in ['Cash', 'Buy', 'Group', 'Bank', 'Subscription', 'PushToken'])
       );
     }
 
     match /NewMyDB/{userId}/{collectionName}/{docId} {
-      allow read, delete: if isOwner(userId)
-        && collectionName in ['Bank', 'Buy', 'Cash', 'Group', 'Partner', 'Subscription', 'PushToken', 'Settings'];
+      allow read, delete: if isOwner(userId);
       allow create, update: if isOwner(userId) && validWrite(userId, collectionName, docId);
+
+      // Eventuali sottocollezioni (dati di altre app): solo il proprietario.
+      match /{subcollection}/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }

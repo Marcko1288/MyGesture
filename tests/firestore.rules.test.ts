@@ -73,9 +73,18 @@ describe('firestore.rules', () => {
     expect(await write('NewMyDB/alice/Buy/BUY_1', null, { amount: 1 })).toBe(403)
   })
 
-  it('collezioni fuori da NewMyDB o non previste sono negate', async () => {
+  it('fuori da NewMyDB è tutto negato', async () => {
     expect(await write('Altro/doc', 'alice', { x: 1 })).toBe(403)
-    expect(await write('NewMyDB/alice/Sconosciuta/doc', 'alice', { x: 1 })).toBe(403)
+    expect(await read('NewMyDB/alice', 'alice')).toBe(403)
+  })
+
+  it('le altre collezioni del proprietario (altre app) restano accessibili solo a lui', async () => {
+    expect(await write('NewMyDB/alice/Contract/C1', 'alice', { name: 'x' })).toBe(200)
+    expect(await read('NewMyDB/alice/Contract/C1', 'alice')).toBe(200)
+    expect(await write('NewMyDB/alice/HolidayEvent/E1/Days/D1', 'alice', { n: 1 })).toBe(200)
+    expect(await read('NewMyDB/alice/Contract/C1', 'bob')).toBe(403)
+    expect(await read('NewMyDB/alice/HolidayEvent/E1/Days/D1', 'bob')).toBe(403)
+    expect(await write('NewMyDB/alice/Contract/C2', 'bob', { name: 'x' })).toBe(403)
   })
 
   it('valida i tipi dei campi principali', async () => {

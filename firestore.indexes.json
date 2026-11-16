@@ -1,4 +1,14 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "Buy",
+      "queryScope": "COLLECTION",
+      "density": "SPARSE_ALL",
+      "fields": [
+        { "fieldPath": "group.all", "order": "ASCENDING" },
+        { "fieldPath": "data_valore", "order": "ASCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
