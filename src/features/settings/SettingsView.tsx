@@ -220,6 +220,16 @@ export default function SettingsView() {
       <List label="Account">
         <ListRow title={user?.email ?? 'Utente'} subtitle="Accesso con email e password" chevron={false} />
         <ListRow
+          title="Versione"
+          trailing={
+            <span className="text-muted">
+              {__APP_VERSION__} ·{' '}
+              {new Date(__APP_BUILD__).toLocaleString('it-IT', { dateStyle: 'short', timeStyle: 'short' })}
+            </span>
+          }
+          chevron={false}
+        />
+        <ListRow
           onClick={() => signOut()}
           icon={<FiLogOut />}
           iconClassName="bg-negative/12 text-negative"

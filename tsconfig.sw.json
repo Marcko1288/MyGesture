@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "WebWorker"],
+    "types": ["vite/client", "vite-plugin-pwa/info"]
+  },
+  "include": ["src/firebase-messaging-sw.ts", "src/vite-env-sw.d.ts"],
+  "exclude": []
+}

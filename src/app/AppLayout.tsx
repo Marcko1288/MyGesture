@@ -1,9 +1,19 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import { Outlet, ScrollRestoration, useLocation, useNavigate } from 'react-router-dom'
 import { FiBell, FiDollarSign, FiLayers, FiShoppingBag, FiUpload } from 'react-icons/fi'
 import { useAuth } from '../data/auth'
-import { syncPushToken } from '../data/push'
-import { BottomSheet, List, ListRow, OfflineBanner, TabBar } from '../ui'
+import { listenForegroundMessages, syncPushToken } from '../data/push'
+import {
+  BottomSheet,
+  List,
+  ListRow,
+  LoadingLabel,
+  OfflineBanner,
+  SkeletonCard,
+  SkeletonList,
+  TabBar,
+  useToast,
+} from '../ui'
 import FormSheetHost from '../features/forms/FormSheetHost'
 import { paths, useSheet, type SheetKind } from './navigation'
 
@@ -27,6 +37,7 @@ export default function AppLayout() {
   const { pathname } = useLocation()
   const [addOpen, setAddOpen] = useState(false)
   const sheet = useSheet()
+  const toast = useToast()
   const userId = user?.uid
 
   useEffect(() => setAddOpen(false), [pathname])
@@ -42,6 +53,14 @@ export default function AppLayout() {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [userId])
 
+  useEffect(
+    () =>
+      listenForegroundMessages((title, body) =>
+        toast({ message: body ? `${title}: ${body}` : title, tone: 'info', duration: 8000 }),
+      ),
+    [toast],
+  )
+
   return (
     <div className="min-h-dvh bg-bg">
       <main
@@ -54,7 +73,17 @@ export default function AppLayout() {
         }}
       >
         <OfflineBanner />
-        <Outlet />
+        <Suspense
+          fallback={
+            <div className="flex flex-col gap-3 pt-16">
+              <LoadingLabel />
+              <SkeletonCard />
+              <SkeletonList rows={4} />
+            </div>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </main>
       <TabBar onAdd={() => setAddOpen(true)} addOpen={addOpen} />
       <BottomSheet open={addOpen} onClose={() => setAddOpen(false)} title="Aggiungi">

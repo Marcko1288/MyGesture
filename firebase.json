@@ -29,11 +29,11 @@
         ]
       },
       {
-        "source": "/@(icons|firebase)/**",
+        "source": "/@(icons|splash)/**",
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "public, max-age=86400"
+            "value": "public, max-age=604800"
           }
         ]
       },
@@ -51,11 +51,15 @@
         ]
       },
       {
-        "source": "/manifest.json",
+        "source": "/manifest.webmanifest",
         "headers": [
           {
             "key": "Content-Type",
             "value": "application/manifest+json"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
           }
         ]
       }

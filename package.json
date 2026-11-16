@@ -1,13 +1,13 @@
 {
   "name": "mygesture",
   "private": true,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "typecheck": "tsc --noEmit",
-    "lint": "oxlint src functions vite-plugins scripts",
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
+    "lint": "oxlint src functions scripts tests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "TZ=Europe/Rome vitest run --passWithNoTests",
@@ -38,6 +38,12 @@
     "prettier": "^3.10.1",
     "typescript": "^7.0.2",
     "vite": "^8.2.0",
-    "vitest": "^5.1.0"
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0",
+    "workbox-build": "^7.4.1",
+    "workbox-core": "^7.4.1",
+    "workbox-precaching": "^7.4.1",
+    "workbox-routing": "^7.4.1",
+    "workbox-window": "^7.4.1"
   }
 }

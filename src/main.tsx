@@ -6,6 +6,7 @@ import { AuthProvider } from './data/auth'
 import { ThemeProvider } from './app/theme'
 import { routes } from './app/routes'
 import { ToastProvider } from './ui'
+import UpdatePrompt from './app/UpdatePrompt'
 
 const router = createBrowserRouter(routes)
 
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       <AuthProvider>
         <ToastProvider>
+          <UpdatePrompt />
           <RouterProvider router={router} />
         </ToastProvider>
       </AuthProvider>

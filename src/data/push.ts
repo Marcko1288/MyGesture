@@ -1,7 +1,6 @@
 import { deleteDoc, getDocs, query, setDoc, where } from 'firebase/firestore'
-import { httpsCallable } from 'firebase/functions'
 import type { Messaging } from 'firebase/messaging'
-import { functions, getMessagingInstance } from '../lib/firebase'
+import { getFunctionsInstance, getMessagingInstance } from '../lib/firebase'
 import { vapidKey } from '../lib/env'
 import type { PushToken } from '../domain/types'
 import { requireUserId, userCollection, userDoc } from './paths'
@@ -66,7 +65,10 @@ export async function pushSupport(): Promise<Support> {
 
 async function registerToken(userId: string, messaging: Messaging) {
   const { getToken } = await import('firebase/messaging')
-  const registration = await navigator.serviceWorker.register(MESSAGING_SW_URL)
+  // Stesso service worker registrato dalla PWA (registrarlo di nuovo con lo stesso URL non crea duplicati).
+  const registration = await navigator.serviceWorker.register(MESSAGING_SW_URL, {
+    type: import.meta.env.DEV ? 'module' : 'classic',
+  })
   await navigator.serviceWorker.ready
   const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration })
   if (!token) throw new Error('Non è stato possibile ottenere il token per le notifiche.')
@@ -150,6 +152,28 @@ export interface TestNotificationResult {
 }
 
 export async function sendTestNotification(): Promise<TestNotificationResult> {
+  const [{ httpsCallable }, functions] = await Promise.all([import('firebase/functions'), getFunctionsInstance()])
   const callable = httpsCallable<void, TestNotificationResult>(functions, 'sendTestNotification')
   return (await callable()).data
+}
+
+/** Notifiche ricevute con l'app aperta (FCM non le mostra da solo in primo piano). Restituisce l'unsubscribe. */
+export function listenForegroundMessages(onMessage: (title: string, body: string) => void): () => void {
+  let unsubscribe: (() => void) | null = null
+  let cancelled = false
+  if (!('Notification' in window) || Notification.permission !== 'granted') return () => undefined
+  getMessagingInstance().then(async (messaging) => {
+    if (!messaging || cancelled) return
+    const { onMessage: subscribe } = await import('firebase/messaging')
+    if (cancelled) return
+    unsubscribe = subscribe(messaging, (payload) => {
+      const title = payload.notification?.title ?? payload.data?.title ?? 'My Gesture'
+      const body = payload.notification?.body ?? payload.data?.body ?? ''
+      onMessage(title, body)
+    })
+  })
+  return () => {
+    cancelled = true
+    unsubscribe?.()
+  }
 }
