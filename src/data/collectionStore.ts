@@ -62,6 +62,9 @@ function start(entry: Entry, userId: string, name: CollectionName) {
     { includeMetadataChanges: true },
     (snapshot) => {
       const fromCache = snapshot.metadata.fromCache
+      // Vuoto e solo dalla cache (es. primo avvio offline): non sappiamo ancora se non ci sono dati,
+      // quindi resta "in caricamento" invece di mostrare uno stato vuoto falso.
+      if (fromCache && snapshot.empty && entry.state.status !== 'ready') return
       // Con includeMetadataChanges arrivano anche eventi senza modifiche ai documenti:
       // in quel caso aggiorno solo il flag, mantenendo lo stesso array (niente render inutili).
       const data =
