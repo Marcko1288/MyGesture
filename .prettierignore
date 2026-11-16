@@ -5,3 +5,4 @@ package-lock.json
 functions/package-lock.json
 *.md
 .firebase
+src/domain/__legacy__
