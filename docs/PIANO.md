@@ -84,6 +84,13 @@ Oggi (saldo, questo mese, spese dell'anno + mini grafico, in scadenza, ultimi mo
 
 Form a foglio dal basso (importo in primo piano, `inputmode="decimal"`, data di default oggi, chip con icone), salvataggio ottimistico con toast, eliminazione annullabile (rimozione ritardata di circa 5 s, con ripristino), swipe sulle righe. Import XLSX in un Web Worker: anteprima (righe lette/valide/errori/duplicati, totale entrate/uscite), scrittura in `writeBatch` da massimo 500 operazioni con barra di avanzamento, CSV degli errori. Ricorrenze in batch.
 
+> Esito (16/11/2026): i form sono fogli dal basso aperti sopra la schermata corrente, con stato nell'URL
+> (`?foglio=spesa|saldo|abbonamento|rinnovo|gruppo&id=…`): "indietro" e lo swipe di iOS li chiudono, ricaricando
+> restano aperti; i vecchi URL (`/spese/:id`, `/nuovo/spesa`, `/altro/saldo/:id`…) reindirizzano. Salvataggio
+> ottimistico (conferma immediata, errore se il server rifiuta), anche offline. Import XLSX con anteprima, deduplica
+> con molteplicità, regole di categoria dell'utente e scrittura in batch da 500. Rimossi tutti i `.jsx` e `App.css`.
+> Importi digitati: `13.000` = tredicimila (punti tra gruppi di tre cifre = migliaia).
+
 ## Fase 6 — PWA e rifinitura
 
 `vite-plugin-pwa` (strategia `injectManifest`: **un solo service worker** che include Workbox e Firebase Messaging, così non ci sono due SW in conflitto sullo scope `/`), manifest, icone, `apple-touch-icon`, splash iOS, aggiornamento del SW con avviso "Nuova versione disponibile". Config del SW iniettata al build dalle `VITE_FIREBASE_*`. Bundle splitting (Recharts, xlsx, firebase/messaging caricati lazy).
