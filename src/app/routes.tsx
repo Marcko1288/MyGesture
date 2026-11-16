@@ -1,41 +1,40 @@
 import { useState, type ComponentType, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams, type RouteObject } from 'react-router-dom'
 import { useAuth, useUserId } from '../data/auth'
-import { useBankRecords, useBuys, useCash, useGroups, useSubscriptions } from '../data/hooks'
+import { useBuys, useCash, useGroups, useSubscriptions } from '../data/hooks'
 import type { LoadStatus } from '../data/collectionStore'
 import { renewalOf } from '../domain/subscriptions'
 import type { Subscription } from '../domain/types'
 import AppLayout from './AppLayout'
 import { Button, EmptyState, ErrorState, LoadingLabel, Skeleton, SkeletonCard } from '../ui'
+import { paths, useBack } from './navigation'
+import LoginScreen from '../features/auth/LoginScreen'
+import TodayView from '../features/home/TodayView'
+import ExpensesOverview from '../features/expenses/ExpensesOverview'
+import GroupsList from '../features/expenses/GroupsList'
+import GroupDetail from '../features/expenses/GroupDetail'
+import StatementOverview from '../features/statement/StatementOverview'
+import CategoryDetail from '../features/statement/CategoryDetail'
+import MovementDetail from '../features/statement/MovementDetail'
+import SavingsOverview from '../features/savings/SavingsOverview'
+import CashHistory from '../features/savings/CashHistory'
+import SubscriptionsList from '../features/subscriptions/SubscriptionsList'
+import SettingsView from '../features/settings/SettingsView'
+import CategoryRulesView from '../features/settings/CategoryRulesView'
 import MoreView from '../features/more/MoreView'
 import CatalogView from '../features/catalog/CatalogView'
-import { paths, useBack } from './navigation'
-import { useTheme } from './theme'
-import LoginViewJsx from '../features/auth/LoginView.jsx'
-import HomeViewJsx from '../features/home/HomeView.jsx'
-import SavingsViewJsx from '../features/savings/SavingsView.jsx'
-import CashHistoryViewJsx from '../features/savings/CashHistoryView.jsx'
 import CashDetailViewJsx from '../features/savings/CashDetailView.jsx'
-import ExpensesViewJsx from '../features/expenses/ExpensesView.jsx'
-import AllGroupsViewJsx from '../features/expenses/AllGroupsView.jsx'
-import GroupBuysViewJsx from '../features/expenses/GroupBuysView.jsx'
 import GroupDetailViewJsx from '../features/expenses/GroupDetailView.jsx'
 import BuyDetailViewJsx from '../features/expenses/BuyDetailView.jsx'
-import StatementViewJsx from '../features/statement/StatementView.jsx'
-import StatementCategoryViewJsx from '../features/statement/StatementCategoryView.jsx'
-import StatementCategoryTrendViewJsx from '../features/statement/StatementCategoryTrendView.jsx'
-import StatementDetailViewJsx from '../features/statement/StatementDetailView.jsx'
 import UploadStatementViewJsx from '../features/statement/UploadStatementView.jsx'
-import SubscriptionsViewJsx from '../features/subscriptions/SubscriptionsView.jsx'
 import SubscriptionDetailViewJsx from '../features/subscriptions/SubscriptionDetailView.jsx'
-import SettingsViewJsx from '../features/settings/SettingsView.jsx'
 
 /**
- * Le viste storiche (.jsx) non sono tipizzate: TypeScript inferirebbe tipi troppo stretti dai default
- * (es. `buyRecords = []` → never[]). Vengono riscritte in .tsx nella Fase 4.
+ * I form storici (.jsx) non sono tipizzati e usano ancora gli stili di App.css:
+ * vengono sostituiti dai fogli dal basso nella Fase 5.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const legacy = (component: unknown) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Legacy = component as ComponentType<any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function LegacyFrame(props: any) {
@@ -46,24 +45,11 @@ const legacy = (component: unknown) => {
     )
   }
 }
-const LoginView = legacy(LoginViewJsx)
-const HomeView = legacy(HomeViewJsx)
-const SavingsView = legacy(SavingsViewJsx)
-const CashHistoryView = legacy(CashHistoryViewJsx)
 const CashDetailView = legacy(CashDetailViewJsx)
-const ExpensesView = legacy(ExpensesViewJsx)
-const AllGroupsView = legacy(AllGroupsViewJsx)
-const GroupBuysView = legacy(GroupBuysViewJsx)
 const GroupDetailView = legacy(GroupDetailViewJsx)
 const BuyDetailView = legacy(BuyDetailViewJsx)
-const StatementView = legacy(StatementViewJsx)
-const StatementCategoryView = legacy(StatementCategoryViewJsx)
-const StatementCategoryTrendView = legacy(StatementCategoryTrendViewJsx)
-const StatementDetailView = legacy(StatementDetailViewJsx)
 const UploadStatementView = legacy(UploadStatementViewJsx)
-const SubscriptionsView = legacy(SubscriptionsViewJsx)
 const SubscriptionDetailView = legacy(SubscriptionDetailViewJsx)
-const SettingsView = legacy(SettingsViewJsx)
 
 type Identified = { uid?: string; id?: string }
 const idOf = (record: Identified) => record.uid ?? record.id ?? ''
@@ -93,10 +79,10 @@ function Loading() {
 }
 
 /** Stato di una schermata di dettaglio: caricamento, errore o elemento non trovato. */
-function RecordState({ status, back, onRetry }: { status: LoadStatus; back: string; onRetry?: () => void }) {
+function RecordState({ status, back }: { status: LoadStatus; back: string }) {
   const navigate = useNavigate()
   if (status === 'loading') return <SkeletonCard lines={3} />
-  if (status === 'error') return <ErrorState onRetry={onRetry} />
+  if (status === 'error') return <ErrorState />
   return (
     <EmptyState
       title="Elemento non trovato"
@@ -112,8 +98,9 @@ function RequireAuth({ children }: { children: ReactNode }) {
   const { status } = useAuth()
   const location = useLocation()
   if (status === 'loading') return <Loading />
-  if (status === 'signedOut')
+  if (status === 'signedOut') {
     return <Navigate to={paths.login} replace state={{ from: `${location.pathname}${location.search}` }} />
+  }
   return children
 }
 
@@ -121,65 +108,13 @@ function LoginRoute() {
   const { status } = useAuth()
   const location = useLocation()
   if (status === 'loading') return <Loading />
-  if (status === 'signedIn')
+  if (status === 'signedIn') {
     return <Navigate to={(location.state as { from?: string } | null)?.from ?? paths.home} replace />
-  return <LoginView />
+  }
+  return <LoginScreen />
 }
 
-// ---------- Home ----------
-
-function HomeRoute() {
-  const navigate = useNavigate()
-  const cash = useCash()
-  const buys = useBuys()
-  const groups = useGroups()
-  const bank = useBankRecords()
-  const subscriptions = useSubscriptions()
-  return (
-    <HomeView
-      latestCash={cash.data[0]}
-      previousCash={cash.data[1]}
-      cashError={cash.status === 'error'}
-      buyRecords={buys.data}
-      groupRecords={groups.data}
-      bankRecords={bank.data}
-      subscriptionRecords={subscriptions.data}
-      buyError={buys.status === 'error' || groups.status === 'error'}
-      onSelectCash={(record: Identified) => navigate(paths.cash(idOf(record)))}
-      onOpenExpenses={() => navigate(paths.expenses)}
-      onOpenStatement={() => navigate(paths.statement)}
-      onOpenSubscriptions={() => navigate(`${paths.subscriptions}?filtro=expiring`)}
-    />
-  )
-}
-
-// ---------- Risparmi ----------
-
-function SavingsRoute() {
-  const navigate = useNavigate()
-  const cash = useCash()
-  return (
-    <SavingsView
-      cashRecords={cash.data}
-      onSelectCash={(record: Identified) => navigate(paths.cash(idOf(record)))}
-      showHistory={false}
-      onShowHistoryChange={(show: boolean) => show && navigate(paths.cashHistory)}
-    />
-  )
-}
-
-function CashHistoryRoute() {
-  const navigate = useNavigate()
-  const back = useBack(paths.savings)
-  const cash = useCash()
-  return (
-    <CashHistoryView
-      cashRecords={cash.data}
-      onBack={back}
-      onSelectCash={(record: Identified) => navigate(paths.cash(idOf(record)))}
-    />
-  )
-}
+// ---------- Form storici (Fase 5) ----------
 
 function CashDetailRoute({ isNew = false }: { isNew?: boolean }) {
   const { cashId } = useParams()
@@ -197,59 +132,6 @@ function CashDetailRoute({ isNew = false }: { isNew?: boolean }) {
       buyRecords={buys.data}
       groupRecords={groups.data}
       onBack={back}
-    />
-  )
-}
-
-// ---------- Spese ----------
-
-function ExpensesRoute() {
-  const navigate = useNavigate()
-  const buys = useBuys()
-  const groups = useGroups()
-  return (
-    <ExpensesView
-      buyRecords={buys.data}
-      groupRecords={groups.data}
-      error={buys.status === 'error' || groups.status === 'error'}
-      onSelectGroup={(groupId: string) => navigate(paths.group(groupId))}
-      onShowAllGroups={() => navigate(paths.groups)}
-    />
-  )
-}
-
-function AllGroupsRoute() {
-  const navigate = useNavigate()
-  const userId = useUserId()
-  const back = useBack(paths.expenses)
-  const buys = useBuys()
-  const groups = useGroups()
-  return (
-    <AllGroupsView
-      groupRecords={groups.data}
-      buyRecords={buys.data}
-      userId={userId}
-      onBack={back}
-      onSelectGroup={(group: Identified) => navigate(paths.group(idOf(group)))}
-    />
-  )
-}
-
-function GroupBuysRoute() {
-  const { groupId } = useParams()
-  const navigate = useNavigate()
-  const back = useBack(paths.expenses)
-  const buys = useBuys()
-  const groups = useGroups()
-  const group = findById(groups.data, groupId)
-  if (!group) return <RecordState status={groups.status} back={paths.expenses} />
-  return (
-    <GroupBuysView
-      group={group}
-      buyRecords={buys.data}
-      onBack={back}
-      onSelectBuy={(buy: Identified) => navigate(paths.buy(idOf(buy)))}
-      onEditGroup={() => navigate(paths.editGroup(idOf(group)))}
     />
   )
 }
@@ -276,125 +158,22 @@ function GroupDetailRoute({ isNew = false }: { isNew?: boolean }) {
 
 function BuyDetailRoute({ isNew = false }: { isNew?: boolean }) {
   const { buyId } = useParams()
+  const [params] = useSearchParams()
   const userId = useUserId()
   const back = useBack(paths.expenses)
   const buys = useBuys()
   const groups = useGroups()
   const buy = useStable(isNew ? undefined : findById(buys.data, buyId))
   if (!isNew && !buy) return <RecordState status={buys.status} back={paths.expenses} />
-  return <BuyDetailView buy={buy} userId={userId} groupRecords={groups.data} buyRecords={buys.data} onBack={back} />
-}
-
-// ---------- Estratto conto ----------
-
-const filterToParam: Record<string, string> = { incoming: 'entrate', outgoing: 'uscite', all: 'tutto' }
-const paramToFilter: Record<string, string> = { entrate: 'incoming', uscite: 'outgoing', tutto: 'all' }
-
-function useStatementParams() {
-  const [params, setParams] = useSearchParams()
-  const month = params.get('mese') ?? ''
-  const filter = paramToFilter[params.get('tipo') ?? ''] ?? ''
-  const query = (next: { month?: string; filter?: string }) => {
-    const search = new URLSearchParams()
-    if (next.month) search.set('mese', next.month)
-    if (next.filter) search.set('tipo', filterToParam[next.filter] ?? next.filter)
-    return search.toString()
-  }
-  return { month, filter, query, setParams }
-}
-
-function StatementRoute() {
-  const navigate = useNavigate()
-  const bank = useBankRecords()
-  const { month, filter, query, setParams } = useStatementParams()
-  return (
-    <StatementView
-      bankRecords={bank.data}
-      month={month}
-      filter={filter}
-      onChangeParams={(next: { month: string; filter: string }) => setParams(query(next), { replace: true })}
-      onSelectCategory={(category: string, selectedMonth: string, selectedFilter: string) =>
-        navigate(`${paths.statementCategory(category)}?${query({ month: selectedMonth, filter: selectedFilter })}`)
-      }
-    />
-  )
-}
-
-/** Mese precedente in formato `YYYY-MM` (default storico dell'estratto conto). */
-function previousMonthValue(today = new Date()) {
-  const date = new Date(today.getFullYear(), today.getMonth() - 1, 1)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-}
-
-function useCategoryRouteProps() {
-  const { category = '' } = useParams()
-  const navigate = useNavigate()
-  const { month, filter, query } = useStatementParams()
-  const selectedMonth = month || previousMonthValue()
-  const selectedFilter = filter || 'outgoing'
-  return {
-    category,
-    selectedMonth,
-    filter: selectedFilter,
-    search: query({ month: selectedMonth, filter: selectedFilter }),
-    onSelectRecord: (record: Identified) => navigate(paths.statementRecord(idOf(record))),
-  }
-}
-
-function StatementCategoryRoute() {
-  const navigate = useNavigate()
-  const bank = useBankRecords()
-  const { search, ...props } = useCategoryRouteProps()
-  const back = useBack(`${paths.statement}?${search}`)
-  return (
-    <StatementCategoryView
-      {...props}
-      bankRecords={bank.data}
-      onBack={back}
-      onOpenTrend={() => navigate(`${paths.statementTrend(props.category)}?${search}`)}
-    />
-  )
-}
-
-function StatementTrendRoute() {
-  const bank = useBankRecords()
-  const { search, ...props } = useCategoryRouteProps()
-  const back = useBack(`${paths.statementCategory(props.category)}?${search}`)
-  return <StatementCategoryTrendView {...props} bankRecords={bank.data} onBack={back} />
-}
-
-function StatementRecordRoute() {
-  const { recordId } = useParams()
-  const back = useBack(paths.statement)
-  const bank = useBankRecords()
-  const record = findById(bank.data, recordId)
-  if (!record) return <RecordState status={bank.status} back={paths.statement} />
-  return <StatementDetailView record={record} onBack={back} />
+  // Da un gruppo, la nuova spesa parte con quel gruppo già scelto.
+  const initial = isNew && params.get('gruppo') ? { group: params.get('gruppo') } : buy
+  return <BuyDetailView buy={initial} userId={userId} groupRecords={groups.data} buyRecords={buys.data} onBack={back} />
 }
 
 function StatementImportRoute() {
   const userId = useUserId()
   const back = useBack(paths.statement)
   return <UploadStatementView userId={userId} onBack={back} />
-}
-
-// ---------- Abbonamenti ----------
-
-const subscriptionFilters = ['all', 'past', 'active', 'expiring']
-
-function SubscriptionsRoute() {
-  const navigate = useNavigate()
-  const [params, setParams] = useSearchParams()
-  const subscriptions = useSubscriptions()
-  const filter = subscriptionFilters.includes(params.get('filtro') ?? '') ? params.get('filtro')! : 'active'
-  return (
-    <SubscriptionsView
-      subscriptionRecords={subscriptions.data}
-      filter={filter}
-      onFilterChange={(value: string) => setParams(value === 'active' ? {} : { filtro: value }, { replace: true })}
-      onSelectSubscription={(subscription: Identified) => navigate(paths.subscription(idOf(subscription)))}
-    />
-  )
 }
 
 function SubscriptionDetailRoute({ mode = 'edit' }: { mode?: 'new' | 'edit' | 'renew' }) {
@@ -417,12 +196,11 @@ function SubscriptionDetailRoute({ mode = 'edit' }: { mode?: 'new' | 'edit' | 'r
   )
 }
 
-// ---------- Impostazioni ----------
-
-function SettingsRoute() {
-  const userId = useUserId()
-  const { theme, setTheme, color, setColor } = useTheme()
-  return <SettingsView theme={theme} setTheme={setTheme} color={color} setColor={setColor} userId={userId} />
+/** Il vecchio URL dell'andamento ora coincide con la pagina della categoria (che include il grafico). */
+function TrendRedirect() {
+  const { category = '' } = useParams()
+  const { search } = useLocation()
+  return <Navigate to={`${paths.statementCategory(category)}${search}`} replace />
 }
 
 export const routes: RouteObject[] = [
@@ -434,26 +212,27 @@ export const routes: RouteObject[] = [
       </RequireAuth>
     ),
     children: [
-      { index: true, element: <HomeRoute /> },
-      { path: 'spese', element: <ExpensesRoute /> },
-      { path: 'spese/gruppi', element: <AllGroupsRoute /> },
-      { path: 'spese/gruppi/:groupId', element: <GroupBuysRoute /> },
+      { index: true, element: <TodayView /> },
+      { path: 'spese', element: <ExpensesOverview /> },
+      { path: 'spese/gruppi', element: <GroupsList /> },
+      { path: 'spese/gruppi/:groupId', element: <GroupDetail /> },
       { path: 'spese/gruppi/:groupId/modifica', element: <GroupDetailRoute /> },
       { path: 'spese/:buyId', element: <BuyDetailRoute /> },
-      { path: 'conto', element: <StatementRoute /> },
+      { path: 'conto', element: <StatementOverview /> },
       { path: 'conto/importa', element: <StatementImportRoute /> },
-      { path: 'conto/categoria/:category', element: <StatementCategoryRoute /> },
-      { path: 'conto/categoria/:category/andamento', element: <StatementTrendRoute /> },
-      { path: 'conto/movimento/:recordId', element: <StatementRecordRoute /> },
+      { path: 'conto/categoria/:category', element: <CategoryDetail /> },
+      { path: 'conto/categoria/:category/andamento', element: <TrendRedirect /> },
+      { path: 'conto/movimento/:recordId', element: <MovementDetail /> },
       { path: 'altro', element: <MoreView /> },
       { path: 'altro/componenti', element: <CatalogView /> },
-      { path: 'altro/risparmi', element: <SavingsRoute /> },
-      { path: 'altro/risparmi/storico', element: <CashHistoryRoute /> },
+      { path: 'altro/risparmi', element: <SavingsOverview /> },
+      { path: 'altro/risparmi/storico', element: <CashHistory /> },
       { path: 'altro/saldo/:cashId', element: <CashDetailRoute /> },
-      { path: 'altro/abbonamenti', element: <SubscriptionsRoute /> },
+      { path: 'altro/abbonamenti', element: <SubscriptionsList /> },
       { path: 'altro/abbonamenti/:subscriptionId', element: <SubscriptionDetailRoute /> },
       { path: 'altro/abbonamenti/:subscriptionId/rinnovo', element: <SubscriptionDetailRoute mode="renew" /> },
-      { path: 'altro/impostazioni', element: <SettingsRoute /> },
+      { path: 'altro/impostazioni', element: <SettingsView /> },
+      { path: 'altro/impostazioni/categorie', element: <CategoryRulesView /> },
       { path: 'nuovo/spesa', element: <BuyDetailRoute isNew /> },
       { path: 'nuovo/saldo', element: <CashDetailRoute isNew /> },
       { path: 'nuovo/abbonamento', element: <SubscriptionDetailRoute mode="new" /> },
